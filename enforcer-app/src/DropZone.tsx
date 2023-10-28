@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import {useDropzone} from 'react-dropzone';
 import styled from 'styled-components';
 // import {hasDisallowedCStickCoords} from '../../src/index'
-import {SlippiGame} from '@slippi/slippi-js'
+import {SlippiGame} from './slippi'
 
 const getColor = (props: any) => {
   if (props.isDragAccept) {
@@ -45,7 +45,12 @@ export function DropZone(props: any) {
         // Do whatever you want with the file contents
         const binaryStr = reader.result
         const game = new SlippiGame(binaryStr as ArrayBuffer);
+        
         console.log(binaryStr)
+        console.log(game)
+        console.log(game.getWinners())
+        console.log(game.getStats()?.stocks)
+
       }
       reader.readAsArrayBuffer(inputFile)
     }
