@@ -1,8 +1,8 @@
 import React, {useCallback} from 'react';
 import {useDropzone} from 'react-dropzone';
 import styled from 'styled-components';
-// import {hasDisallowedCStickCoords} from '../../src/index'
-import {SlippiGame} from './slippi'
+import {hasDisallowedCStickCoords, Coord} from 'slp-enforcer'
+import {SlippiGame, FramesType} from 'slp-enforcer'
 
 const getColor = (props: any) => {
   if (props.isDragAccept) {
@@ -45,11 +45,36 @@ export function DropZone(props: any) {
         // Do whatever you want with the file contents
         const binaryStr = reader.result
         const game = new SlippiGame(binaryStr as ArrayBuffer);
+        var frames: FramesType = game.getFrames()
+        var coords: Coord[] = []
+
+        var frame: number = -123
+        while (true) {
+          try {
+            var coord = new Coord()
+            var x = frames[frame].players[0]?.pre.cStickX
+            if (x !== undefined && x !== null) {
+              coord.x = x
+              if (Math.abs(.8 - Math.abs(x)) < 0.01) {
+                console.log(frame, x)
+              }
+            }
+            var y = frames[frame].players[0]?.pre.cStickY
+            if (y !== undefined && y !== null) {
+              coord.y = y
+            }
+            coords.push(coord)
+
+          }
+          catch(err) {
+            console.log("max frames: ", frame, err)
+            break
+          } 
+          frame += 1
+        }
+
         
-        console.log(binaryStr)
-        console.log(game)
-        console.log(game.getWinners())
-        console.log(game.getStats()?.stocks)
+        console.log(hasDisallowedCStickCoords(coords))
 
       }
       reader.readAsArrayBuffer(inputFile)
