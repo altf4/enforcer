@@ -1,8 +1,6 @@
 import React, {useCallback} from 'react';
 import {useDropzone} from 'react-dropzone';
 import styled from 'styled-components';
-import {hasDisallowedCStickCoords, Coord} from 'slp-enforcer'
-import {SlippiGame, FramesType} from 'slp-enforcer'
 
 const getColor = (props: any) => {
   if (props.isDragAccept) {
@@ -37,47 +35,7 @@ export function DropZone(props: any) {
 
   const onDrop = useCallback((acceptedFiles: any) => {
     for (var inputFile of acceptedFiles) {
-      const reader = new FileReader()
-
-      reader.onabort = () => console.log('file reading was aborted')
-      reader.onerror = () => console.log('file reading has failed')
-      reader.onload = () => {
-        // Do whatever you want with the file contents
-        const binaryStr = reader.result
-        const game = new SlippiGame(binaryStr as ArrayBuffer);
-        var frames: FramesType = game.getFrames()
-        var coords: Coord[] = []
-
-        var frame: number = -123
-        while (true) {
-          try {
-            var coord = new Coord()
-            var x = frames[frame].players[0]?.pre.cStickX
-            if (x !== undefined && x !== null) {
-              coord.x = x
-              if (Math.abs(.8 - Math.abs(x)) < 0.01) {
-                console.log(frame, x)
-              }
-            }
-            var y = frames[frame].players[0]?.pre.cStickY
-            if (y !== undefined && y !== null) {
-              coord.y = y
-            }
-            coords.push(coord)
-
-          }
-          catch(err) {
-            console.log("max frames: ", frame, err)
-            break
-          } 
-          frame += 1
-        }
-
-        
-        console.log(hasDisallowedCStickCoords(coords))
-
-      }
-      reader.readAsArrayBuffer(inputFile)
+      props.dropHandler(inputFile)
     }
   }, [])
 
