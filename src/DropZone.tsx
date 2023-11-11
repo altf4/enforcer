@@ -37,8 +37,8 @@ export function DropZone(props: any) {
     let i: number = 0;
     for (var inputFile of acceptedFiles) {
       i++
-      props.dropHandler(inputFile, i/acceptedFiles.length)
       await new Promise(r => setTimeout(r, 100));
+      props.dropHandler(inputFile, i/acceptedFiles.length)
     }
   }, [])
 

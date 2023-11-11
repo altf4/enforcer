@@ -6,6 +6,10 @@ const ExpandedComponent = ({ data }: {data: any}) => <pre>{JSON.stringify(data, 
 export type DataRow = {
   filename: string
   result: string
+  p1results: string
+  p2results: string
+  p3results: string
+  p4results: string
   details: CheckResult[]
 }
 
@@ -48,13 +52,31 @@ const columns: TableColumn<DataRow>[] = [
       name: 'Result',
       selector: row => row.result,
       sortable: true,
-  }
+  },
+  {
+    name: 'P1',
+    selector: row => row.p1results,
+    maxWidth: "48px",
+  },
+  {
+    name: 'P2',
+    selector: row => row.p2results,
+    maxWidth: "48px",
+  },
+  {
+    name: 'P3',
+    selector: row => row.p3results,
+    maxWidth: "48px",
+  },
+  {
+    name: 'P4',
+    selector: row => row.p4results,
+    maxWidth: "48px",
+  },
+
 ]
 
 export function ResultsTable({ results, isActive }: { results: DataRow[], isActive: boolean }): JSX.Element {
-  if (results.length === 0) {
-    return <div/>
-  }
   if (!isActive) {
     return <div/>
   }
