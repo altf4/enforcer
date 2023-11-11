@@ -33,9 +33,12 @@ const Container = styled.div`
 
 export function DropZone(props: any) {
 
-  const onDrop = useCallback((acceptedFiles: any) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    let i: number = 0;
     for (var inputFile of acceptedFiles) {
-      props.dropHandler(inputFile)
+      i++
+      props.dropHandler(inputFile, i/acceptedFiles.length)
+      await new Promise(r => setTimeout(r, 100));
     }
   }, [])
 
@@ -51,7 +54,7 @@ export function DropZone(props: any) {
     <div className="container">
       <Container {...getRootProps({isFocused, isDragAccept, isDragReject})}>
         <input {...getInputProps()} />
-        <p>Drag 'n' drop some files here, or click to select files</p>
+        <p>Drag 'n' drop some SLP replay files here, or click to select files</p>
       </Container>
     </div>
   );

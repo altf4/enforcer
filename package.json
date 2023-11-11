@@ -14,11 +14,12 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "react": "^18.2.0",
+    "react-data-table-component": "^7.5.4",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-scripts": "5.0.1",
     "slp-enforcer": "^0.1.0",
-    "styled-components": "^6.1.0",
+    "styled-components": "^6.1.1",
     "typescript": "^5.2.2",
     "util": "^0.12.5",
     "web-vitals": "^3.5.0"

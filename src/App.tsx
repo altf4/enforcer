@@ -1,14 +1,17 @@
 import * as React from 'react'
 import './App.css';
 import {DropZone} from './DropZone'
-import {ResultsTable, CheckResult} from './CheckResults'
+import {ResultsTable, CheckResult, DataRow} from './ResultsTable'
+import {ProgressBar} from './ProgressBar'
+
 import {hasDisallowedCStickCoords, Coord} from 'slp-enforcer'
 import {SlippiGame, FramesType} from 'slp-enforcer'
 
 function App() {
-  const [results, updateResults] = React.useState<CheckResult[]>([])
+  const [results, updateResults] = React.useState<DataRow[]>([])
+  const [progress, setProgress] = React.useState<number>(100)
 
-  function runChecks(inputFile: any) {
+  function runChecks(inputFile: File, currentProgress: number) {
     const reader = new FileReader()
       reader.onabort = () => console.log('file reading was aborted')
       reader.onerror = () => console.log('file reading has failed')
@@ -17,18 +20,18 @@ function App() {
         const binaryStr = reader.result
         const game = new SlippiGame(binaryStr as ArrayBuffer);
 
-        var frames: FramesType = game.getFrames()
-        var coords: Coord[] = []
+        let frames: FramesType = game.getFrames()
+        let coords: Coord[] = []
 
-        var frame: number = -123
+        let frame: number = -123
         while (true) {
           try {
-            var coord = new Coord()
-            var x = frames[frame].players[0]?.pre.cStickX
+            let coord = new Coord()
+            let x = frames[frame].players[0]?.pre.cStickX
             if (x !== undefined && x !== null) {
               coord.x = x
             }
-            var y = frames[frame].players[0]?.pre.cStickY
+            let y = frames[frame].players[0]?.pre.cStickY
             if (y !== undefined && y !== null) {
               coord.y = y
             }
@@ -36,33 +39,55 @@ function App() {
 
           }
           catch(err) {
-            console.log("max frames: ", frame, err)
             break
           } 
           frame += 1
         }
 
-        console.log("Has disallowed coords: ", hasDisallowedCStickCoords(coords))
-        var newResults: CheckResult[] = []
-        var resultA: CheckResult = {
+        let passed = "¯\\_(ツ)_/¯  Unclear"
+        let isHandwarmer = false
+        // TODO Check for handwarmer
+        if (isHandwarmer) {
+          passed = "🔥 Handwarmer"
+        } else {
+
+          // TODO: Do all the individual checks here
+
+          let passedChecks = !hasDisallowedCStickCoords(coords)
+          if (passedChecks) {
+            passed = "✅ Passed"
+          } else {
+            passed = "❌ Failed"
+          }
+        }
+
+        let newResults: DataRow[] = results
+        let checkResults: CheckResult[] = []
+
+        let resultA: CheckResult = {
           name: "Disallowed C-Stick Coords",
-          passed: !hasDisallowedCStickCoords(coords),
-          timestamps: [],
+          passed: passed,
         };
-
-        newResults.push(resultA)
-
+        checkResults.push(resultA)
+        let fileResult: DataRow = {filename: inputFile.name, 
+          result: passed, 
+          details: checkResults
+        }
+        newResults.push(fileResult)
+        
         updateResults(newResults)
       }
       reader.readAsArrayBuffer(inputFile)
+      setProgress(currentProgress)
   }
 
   return (
     <div className="App">
       <header className="App-header">
         <div>SLP Enforcer</div>
-        <DropZone dropHandler={runChecks}></DropZone>
-        <ResultsTable results={results}></ResultsTable>
+        <DropZone dropHandler={runChecks}> setProgress={setProgress}</DropZone>
+        <ResultsTable results={results} isActive={progress >= 1.0}></ResultsTable>
+        <ProgressBar progress={progress} />
       </header>
     </div>
   );
