@@ -52,11 +52,11 @@ function App() {
         for (let check of checks) {
           let checkResult: CheckResult = {
             name: check.name,
-            passed: "✅ Passed"
+            passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"]
           }
           for (let i=0; i<4; i++) {
             if (!ports.includes(i)) {
-              // checkResult.passed = "█ No player"
+              checkResult.passed[i] = "█ No player"
               playerPassed[i] = ""
               continue
             }
@@ -71,7 +71,7 @@ function App() {
             // Only do checks for boxes
             if(isBoxController(getCoordListFromGame(game, i, true))) {
               if (check.checkFunction(game, i, coords)) {
-                checkResult.passed = "❌ Failed"
+                checkResult.passed[i] = "❌ Failed"
                 playerPassed[i] = "❌ Failed"
                 passed = "❌ Failed"
               }

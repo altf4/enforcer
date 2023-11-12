@@ -1,7 +1,8 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
+import {ExpandedRow} from './ExpandedRow'
 
-const ExpandedComponent = ({ data }: {data: any}) => <pre>{JSON.stringify(data, null, 2)}</pre>;
+const ExpandedComponent = ({ data }: {data: any}) => <ExpandedRow results={[data]}/>
 
 export type DataRow = {
   filename: string
@@ -15,7 +16,7 @@ export type DataRow = {
 
 export type CheckResult = {
   name: string
-  passed: string
+  passed: string[] // Array in player order
 }
 
 const customStyles = {
@@ -80,6 +81,7 @@ export function ResultsTable({ results, isActive }: { results: DataRow[], isActi
   if (!isActive) {
     return <div/>
   }
+  console.log("Results length: ", results.length, results)
   return <DataTable columns={columns}
                     data={results}
                     customStyles={customStyles}
