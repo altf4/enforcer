@@ -1,16 +1,16 @@
-import React, {useCallback} from 'react';
-import {useDropzone} from 'react-dropzone';
+import React, { useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import styled from 'styled-components';
 
 const getColor = (props: any) => {
   if (props.isDragAccept) {
-      return '#00e676';
+    return '#00e676';
   }
   if (props.isDragReject) {
-      return '#ff1744';
+    return '#ff1744';
   }
   if (props.isFocused) {
-      return '#2196f3';
+    return '#2196f3';
   }
   return '#eeeeee';
 }
@@ -34,25 +34,31 @@ const Container = styled.div`
 export function DropZone(props: any) {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    let i: number = 0;
-    for (var inputFile of acceptedFiles) {
-      i++
-      await new Promise(r => setTimeout(r, 100));
-      props.dropHandler(inputFile, i/acceptedFiles.length)
-    }
+    let count = 0
+    const promises: Promise<any>[] = acceptedFiles.map(inputFile => {
+      const process = props.processFile(inputFile)
+      process.then(() => {
+        count += 1
+        console.log(`setting progress to ${count / acceptedFiles.length * 100}%`)
+        props.setProgress(count / acceptedFiles.length)
+      })
+      return process
+    })
+    const results = await Promise.all(promises)
+    props.handleResults(results)
   }, [])
 
-  const {getRootProps, getInputProps} = useDropzone({onDrop})
+  const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
   const {
     isFocused,
     isDragAccept,
     isDragReject
   } = useDropzone();
-  
+
   return (
     <div className="container">
-      <Container {...getRootProps({isFocused, isDragAccept, isDragReject})}>
+      <Container {...getRootProps({ isFocused, isDragAccept, isDragReject })}>
         <input {...getInputProps()} />
         <p>Drag 'n' drop some SLP replay files here, or click to select files</p>
       </Container>
