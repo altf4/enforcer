@@ -34,7 +34,6 @@ function App() {
 
         let checkResults: CheckResult[] = []
 
-        // TODO Check for handwarmer
         if (isHandwarmer(game)) {
           passed = "🔥 Handwarmer"
           for (let i = 0; i < 4; i++) {
@@ -42,11 +41,8 @@ function App() {
           }
         } else {
 
-          // TODO: Do all the individual checks here
           let checks: Check[]
           checks = ListChecks()
-
-          // const playerTypes = game.getSettings()?.players.map((player) => player.type);
 
           const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
           if (ports === undefined) {
