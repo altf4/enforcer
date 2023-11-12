@@ -40,13 +40,12 @@ export function DropZone(props: any) {
       process.then(() => {
         count += 1
         console.log(`setting progress to ${count / acceptedFiles.length * 100}%`)
-        props.setProgress(count / acceptedFiles.length * 100)
+        props.setProgress(count / acceptedFiles.length)
       })
       return process
     })
-    Promise.all(promises).then((results) => {
-      props.handleResults(results)
-    })
+    const results = await Promise.all(promises)
+    props.handleResults(results)
   }, [])
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
