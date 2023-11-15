@@ -82,8 +82,14 @@ function App() {
           }
         }
 
+        let ourStage: number = game.getSettings()?.stageId!
+        if (ourStage === undefined || ourStage === null) {
+          ourStage = -1
+        }
+
         let fileResult: DataRow = {
           filename: inputFile.name,
+          stage: ourStage,
           result: passed,
           p1results: playerPassed[0],
           p2results: playerPassed[1],

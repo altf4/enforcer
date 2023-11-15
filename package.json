@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.200",
+    "@types/webpack-env": "^1.18.4",
     "gh-pages": "^6.0.0"
   }
 }

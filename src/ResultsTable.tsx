@@ -1,11 +1,26 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
 import {ExpandedRow} from './ExpandedRow'
+const stageImages = require.context('./stages/', true);
+
+export function StageIcon({ stageId }: { stageId: number}): JSX.Element {
+  console.log(stageId)
+  if (stageId === undefined) {
+    return <div/>
+  }
+  let stage: string = stageImages(`./${stageId}.png`);
+  return <img
+            src={stage}
+            width={60}
+            alt={String(stageId)}
+          />
+}
 
 const ExpandedComponent = ({ data }: {data: any}) => <ExpandedRow results={[data]}/>
 
 export type DataRow = {
   filename: string
+  stage: number
   result: string
   p1results: string
   p2results: string
@@ -45,14 +60,21 @@ const customStyles = {
 
 const columns: TableColumn<DataRow>[] = [
   {
-      name: 'Filename',
-      selector: row => row.filename,
-      sortable: true,
+    name: 'Filename',
+    selector: row => row.filename,
+    sortable: true,
   },
   {
-      name: 'Result',
-      selector: row => row.result,
-      sortable: true,
+    name: 'Stage',
+    selector: row => row.stage,
+    cell: (row) => (
+      StageIcon({stageId: row.stage})
+    ),
+  },
+  {
+    name: 'Result',
+    selector: row => row.result,
+    sortable: true,
   },
   {
     name: 'P1',
@@ -81,7 +103,6 @@ export function ResultsTable({ results, isActive }: { results: DataRow[], isActi
   if (!isActive) {
     return <div/>
   }
-  console.log("Results length: ", results.length, results)
   return <DataTable columns={columns}
                     data={results}
                     customStyles={customStyles}

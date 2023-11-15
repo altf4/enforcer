@@ -39,7 +39,6 @@ export function DropZone(props: any) {
       const process = props.processFile(inputFile)
       process.then(() => {
         count += 1
-        console.log(`setting progress to ${count / acceptedFiles.length * 100}%`)
         props.setProgress(count / acceptedFiles.length)
       })
       return process
