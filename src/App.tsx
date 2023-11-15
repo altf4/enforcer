@@ -31,6 +31,8 @@ function App() {
         playerPassed.push("✅ Passed")
         playerPassed.push("✅ Passed")
         playerPassed.push("✅ Passed")
+        let characterIds: number[] = [-1, -1, -1, -1]
+        let costumes: number[] = [-1, -1, -1, -1]
 
         let checkResults: CheckResult[] = []
 
@@ -47,6 +49,14 @@ function App() {
           const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
           if (ports === undefined) {
             return
+          }
+
+          // Get character IDs, costumes
+          for (let i = 0; i < 4; i++) {
+            if (ports.includes(i)) {
+              characterIds[i] = game.getSettings()?.players[i].characterId!
+              costumes[i] = game.getSettings()?.players[i].characterColor!
+            }
           }
 
           for (let check of checks) {
@@ -95,6 +105,8 @@ function App() {
           p2results: playerPassed[1],
           p3results: playerPassed[2],
           p4results: playerPassed[3],
+          characterIds: characterIds,
+          costumes: costumes,
           details: checkResults
         }
 
