@@ -1,15 +1,45 @@
 {
   "files": {
     "main.css": "/enforcer/static/css/main.326312a4.css",
-    "main.js": "/enforcer/static/js/main.057ef786.js",
-    "static/js/496.19694d29.chunk.js": "/enforcer/static/js/496.19694d29.chunk.js",
+    "main.js": "/enforcer/static/js/main.207cc954.js",
+    "static/js/496.fa56f9ff.chunk.js": "/enforcer/static/js/496.fa56f9ff.chunk.js",
+    "static/media/8.png": "/enforcer/static/media/8.0281ecdb29c29a1c021c.png",
+    "static/media/29.png": "/enforcer/static/media/29.2055ad0bc6720feb59ac.png",
+    "static/media/2.png": "/enforcer/static/media/2.fce1051b8119a8696ade.png",
+    "static/media/4.png": "/enforcer/static/media/4.ada4d03881bac0a8eae2.png",
+    "static/media/14.png": "/enforcer/static/media/14.a393279daa034462e9ca.png",
+    "static/media/28.png": "/enforcer/static/media/28.e3f7b0cd8e49b34a7a13.png",
+    "static/media/18.png": "/enforcer/static/media/18.1bc464feb621b71940ed.png",
+    "static/media/9.png": "/enforcer/static/media/9.4c371c270bd29625f977.png",
+    "static/media/16.png": "/enforcer/static/media/16.24223bed51269ac8bf7f.png",
+    "static/media/13.png": "/enforcer/static/media/13.6421f1e943524d69c1bd.png",
+    "static/media/25.png": "/enforcer/static/media/25.9fb2e65f51c13ddd3a1a.png",
+    "static/media/5.png": "/enforcer/static/media/5.6127462cff4a5f1c1532.png",
+    "static/media/17.png": "/enforcer/static/media/17.9bc765c944364e0af352.png",
+    "static/media/22.png": "/enforcer/static/media/22.dacf8a0106b5c2303d37.png",
+    "static/media/10.png": "/enforcer/static/media/10.d740e390ccd3e1b7fa16.png",
+    "static/media/24.png": "/enforcer/static/media/24.e60d6a697967e2756351.png",
+    "static/media/15.png": "/enforcer/static/media/15.9099114dad76f78d2173.png",
+    "static/media/11.png": "/enforcer/static/media/11.9a77e3731d26a3a6c377.png",
+    "static/media/20.png": "/enforcer/static/media/20.09209aafce00b65ccd39.png",
+    "static/media/6.png": "/enforcer/static/media/6.173137b1cecd3c14eee9.png",
+    "static/media/32.png": "/enforcer/static/media/32.c59d284377ced438ea8b.png",
+    "static/media/3.png": "/enforcer/static/media/3.bbf744a24b1bd123541c.png",
+    "static/media/12.png": "/enforcer/static/media/12.3d28e8b8ba93582b36b5.png",
+    "static/media/7.png": "/enforcer/static/media/7.a8576732710667e5c7e1.png",
+    "static/media/30.png": "/enforcer/static/media/30.6ca89fb783e9085fd2d1.png",
+    "static/media/23.png": "/enforcer/static/media/23.cc0aad93d6239c694a5b.png",
+    "static/media/31.png": "/enforcer/static/media/31.88ac470236856c7a9b3e.png",
+    "static/media/19.png": "/enforcer/static/media/19.3f8229c38e6db5a29743.png",
+    "static/media/27.png": "/enforcer/static/media/27.a72410dc104f8244085a.png",
+    "static/media/stock.png": "/enforcer/static/media/stock.0ec58c09ff0980dae90d.png",
     "index.html": "/enforcer/index.html",
     "main.326312a4.css.map": "/enforcer/static/css/main.326312a4.css.map",
-    "main.057ef786.js.map": "/enforcer/static/js/main.057ef786.js.map",
-    "496.19694d29.chunk.js.map": "/enforcer/static/js/496.19694d29.chunk.js.map"
+    "main.207cc954.js.map": "/enforcer/static/js/main.207cc954.js.map",
+    "496.fa56f9ff.chunk.js.map": "/enforcer/static/js/496.fa56f9ff.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.326312a4.css",
-    "static/js/main.057ef786.js"
+    "static/js/main.207cc954.js"
   ]
 }
