@@ -15,7 +15,7 @@ export function StageIcon({ stageId }: { stageId: number}): JSX.Element {
             alt={String(stageId)}
           />
 }
-
+//isActive={progress > 0 && results.length == 0}
 export function CharacterIcon({ characterId, costume, results }: { characterId: number, costume: number, results: string}): JSX.Element {
   try {
     if (characterId === undefined) {

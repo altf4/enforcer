@@ -19,7 +19,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -39,4 +38,10 @@
 
 .dropZone {
   display: flex;
+}
+
+.title {
+  position: top;
+  display: flex;
+  font-size: calc(40px + 2vmin);
 }

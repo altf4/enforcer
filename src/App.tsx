@@ -54,8 +54,13 @@ function App() {
           // Get character IDs, costumes
           for (let i = 0; i < 4; i++) {
             if (ports.includes(i)) {
-              characterIds[i] = game.getSettings()?.players[i].characterId!
-              costumes[i] = game.getSettings()?.players[i].characterColor!
+              for (let player of game.getSettings()?.players!) {
+                if (player.playerIndex == i) {
+                  // Wow, that was a lot just to match these
+                  characterIds[i] = player.characterId!
+                  costumes[i] = player.characterColor!
+                }
+              }
             }
           }
 
@@ -66,7 +71,7 @@ function App() {
             }
             for (let i = 0; i < 4; i++) {
               if (!ports.includes(i)) {
-                checkResult.passed[i] = "█ No player"
+                checkResult.passed[i] = ""
                 playerPassed[i] = ""
                 continue
               }
@@ -119,7 +124,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div>SLP Enforcer</div>
+        <div className="title" >SLP Enforcer</div>
         <DropZone processFile={runChecks} setProgress={setProgress} handleResults={handleResults} />
         <ResultsTable results={results} isActive={progress >= 1.0 && results.length > 0}></ResultsTable>
         <ProgressBar progress={progress} />
