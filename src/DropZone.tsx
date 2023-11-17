@@ -55,6 +55,10 @@ export function DropZone(props: any) {
     isDragReject
   } = useDropzone();
 
+  if (!props.isActive) {
+    return
+  }
+
   return (
     <div className="container">
       <Container {...getRootProps({ isFocused, isDragAccept, isDragReject })}>

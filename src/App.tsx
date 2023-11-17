@@ -9,7 +9,7 @@ import { SlippiGame, isHandwarmer, averageTravelCoordHitRate } from 'slp-enforce
 
 function App() {
   const [results, updateResults] = React.useState<DataRow[]>([])
-  const [progress, setProgress] = React.useState<number>(100)
+  const [progress, setProgress] = React.useState<number>(1)
 
   async function handleResults(newResults: DataRow[]) {
     updateResults(oldList => [...oldList, ...newResults])
@@ -36,6 +36,24 @@ function App() {
 
         let checkResults: CheckResult[] = []
 
+        const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
+        if (ports === undefined) {
+          return
+        }
+
+        // Get character IDs, costumes
+        for (let i = 0; i < 4; i++) {
+          if (ports.includes(i)) {
+            for (let player of game.getSettings()?.players!) {
+              if (player.playerIndex == i) {
+                // Wow, that was a lot just to match these
+                characterIds[i] = player.characterId!
+                costumes[i] = player.characterColor!
+              }
+            }
+          }
+        }
+
         if (isHandwarmer(game)) {
           passed = "🔥 Handwarmer"
           for (let i = 0; i < 4; i++) {
@@ -45,24 +63,6 @@ function App() {
 
           let checks: Check[]
           checks = ListChecks()
-
-          const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
-          if (ports === undefined) {
-            return
-          }
-
-          // Get character IDs, costumes
-          for (let i = 0; i < 4; i++) {
-            if (ports.includes(i)) {
-              for (let player of game.getSettings()?.players!) {
-                if (player.playerIndex == i) {
-                  // Wow, that was a lot just to match these
-                  characterIds[i] = player.characterId!
-                  costumes[i] = player.characterColor!
-                }
-              }
-            }
-          }
 
           for (let check of checks) {
             let checkResult: CheckResult = {
@@ -125,7 +125,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="title" >SLP Enforcer</div>
-        <DropZone processFile={runChecks} setProgress={setProgress} handleResults={handleResults} />
+        <DropZone processFile={runChecks} isActive={progress < 1.0 || results.length === 0} setProgress={setProgress} handleResults={handleResults} />
         <ResultsTable results={results} isActive={progress >= 1.0 && results.length > 0}></ResultsTable>
         <ProgressBar progress={progress} />
       </header>
