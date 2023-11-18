@@ -5,7 +5,7 @@ import { ResultsTable, CheckResult, DataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
 
 import { getCoordListFromGame, Coord, ListChecks, Check, getUniqueCoords, isBoxController } from 'slp-enforcer'
-import { SlippiGame, isHandwarmer, averageTravelCoordHitRate } from 'slp-enforcer'
+import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
 
 function App() {
   const [results, updateResults] = React.useState<DataRow[]>([])
@@ -54,7 +54,13 @@ function App() {
           }
         }
 
-        if (isHandwarmer(game)) {
+        if (isSlpMinVersion(game)) {
+          console.log("old")
+          passed = "💀 SLP Too Old (Slippi >=3.15.0)"
+          for (let i = 0; i < 4; i++) {
+            playerPassed[i] = "⦻ Skipped"
+          }
+        } else if (isHandwarmer(game)) {
           passed = "🔥 Handwarmer"
           for (let i = 0; i < 4; i++) {
             playerPassed[i] = "⦻ Skipped"
