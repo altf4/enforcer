@@ -27,10 +27,11 @@ function App() {
 
         let passed = "✅ Passed"
         let playerPassed: string[] = []
-        playerPassed.push("✅ Passed")
-        playerPassed.push("✅ Passed")
-        playerPassed.push("✅ Passed")
-        playerPassed.push("✅ Passed")
+        playerPassed.push("✅")
+        playerPassed.push("✅")
+        playerPassed.push("✅")
+        playerPassed.push("✅")
+        let controllerType : string[] = ["?", "?", "?", "?"]
         let characterIds: number[] = [-1, -1, -1, -1]
         let costumes: number[] = [-1, -1, -1, -1]
 
@@ -55,15 +56,14 @@ function App() {
         }
 
         if (isSlpMinVersion(game)) {
-          console.log("old")
           passed = "💀 SLP Too Old (Slippi >=3.15.0)"
           for (let i = 0; i < 4; i++) {
-            playerPassed[i] = "⦻ Skipped"
+            playerPassed[i] = "⦻"
           }
         } else if (isHandwarmer(game)) {
           passed = "🔥 Handwarmer"
           for (let i = 0; i < 4; i++) {
-            playerPassed[i] = "⦻ Skipped"
+            playerPassed[i] = "⦻"
           }
         } else {
 
@@ -91,13 +91,15 @@ function App() {
 
               // Only do checks for boxes
               if (isBoxController(getCoordListFromGame(game, i, true))) {
+                controllerType[i] = "📦"
                 if (check.checkFunction(game, i, coords)) {
-                  checkResult.passed[i] = "❌ Failed"
-                  playerPassed[i] = "❌ Failed"
+                  checkResult.passed[i] = "❌"
+                  playerPassed[i] = "❌"
                   passed = "❌ Failed"
                 }
+              } else {
+                controllerType[i] = "🕹️"
               }
-
             }
             checkResults.push(checkResult)
           }
@@ -116,6 +118,7 @@ function App() {
           p2results: playerPassed[1],
           p3results: playerPassed[2],
           p4results: playerPassed[3],
+          controllerType: controllerType,
           characterIds: characterIds,
           costumes: costumes,
           details: checkResults

@@ -16,14 +16,14 @@ export function StageIcon({ stageId }: { stageId: number}): JSX.Element {
           />
 }
 
-export function CharacterIcon({ characterId, costume, results }: { characterId: number, costume: number, results: string}): JSX.Element {
+export function CharacterIcon({ characterId, costume, results, controllerType }: { characterId: number, costume: number, results: string, controllerType: string}): JSX.Element {
   try {
     if (characterId === undefined) {
       return <div/>
     }
     let stage: string = characterIcons(`./${characterId}/${costume}/stock.png`);
-    return (  <div>
-                {results}
+    return (  <div className="characterResultsContainer">
+                <div className="resultsText">{results}{controllerType}</div>
                 <img
                   src={stage}
                   width={24}
@@ -48,6 +48,7 @@ export type DataRow = {
   p3results: string
   p4results: string
   characterIds: number[]
+  controllerType: string[]
   costumes: number[]
   details: CheckResult[]
 }
@@ -86,11 +87,11 @@ const columns: TableColumn<DataRow>[] = [
     name: 'Filename',
     selector: row => row.filename,
     sortable: true,
-    width: "300px",
   },
   {
     name: 'Stage',
     selector: row => row.stage,
+    maxWidth: "100px",
     cell: (row) => (
       StageIcon({stageId: row.stage})
     ),
@@ -98,38 +99,51 @@ const columns: TableColumn<DataRow>[] = [
   {
     name: 'Result',
     selector: row => row.result,
+    maxWidth: "150px",
     sortable: true,
   },
   {
     name: 'P1',
     selector: row => row.p1results,
-    maxWidth: "48px",
+    maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[0], costume: row.costumes[0], results: row.p1results})
+      CharacterIcon({characterId: row.characterIds[0], 
+        costume: row.costumes[0], 
+        results: row.p1results, 
+        controllerType: row.controllerType[0]})
     ),
   },
   {
     name: 'P2',
     selector: row => row.p2results,
-    maxWidth: "48px",
+    maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[1], costume: row.costumes[1], results: row.p2results})
+      CharacterIcon({characterId: row.characterIds[1], 
+        costume: row.costumes[1], 
+        results: row.p2results,
+        controllerType: row.controllerType[1]})
     ),
   },
   {
     name: 'P3',
     selector: row => row.p3results,
-    maxWidth: "48px",
+    maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[2], costume: row.costumes[2], results: row.p3results})
+      CharacterIcon({characterId: row.characterIds[2], 
+        costume: row.costumes[2], 
+        results: row.p3results,
+        controllerType: row.controllerType[2]})
     ),
   },
   {
     name: 'P4',
     selector: row => row.p4results,
-    maxWidth: "48px",
+    maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[3], costume: row.costumes[3], results: row.p4results})
+      CharacterIcon({characterId: row.characterIds[3], 
+        costume: row.costumes[3], 
+        results: row.p4results,
+        controllerType: row.controllerType[3]})
     ),
   },
 
