@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/enforcer/static/css/main.a7491aa5.css",
-    "main.js": "/enforcer/static/js/main.d973a826.js",
+    "main.css": "/enforcer/static/css/main.caf592d6.css",
+    "main.js": "/enforcer/static/js/main.c71c640d.js",
     "static/js/496.fa56f9ff.chunk.js": "/enforcer/static/js/496.fa56f9ff.chunk.js",
     "static/media/8.png": "/enforcer/static/media/8.0281ecdb29c29a1c021c.png",
     "static/media/29.png": "/enforcer/static/media/29.2055ad0bc6720feb59ac.png",
@@ -32,14 +32,15 @@
     "static/media/31.png": "/enforcer/static/media/31.88ac470236856c7a9b3e.png",
     "static/media/19.png": "/enforcer/static/media/19.3f8229c38e6db5a29743.png",
     "static/media/27.png": "/enforcer/static/media/27.a72410dc104f8244085a.png",
+    "static/media/awesome.png": "/enforcer/static/media/awesome.40557373d2546adf104c.png",
     "static/media/stock.png": "/enforcer/static/media/stock.0ec58c09ff0980dae90d.png",
     "index.html": "/enforcer/index.html",
-    "main.a7491aa5.css.map": "/enforcer/static/css/main.a7491aa5.css.map",
-    "main.d973a826.js.map": "/enforcer/static/js/main.d973a826.js.map",
+    "main.caf592d6.css.map": "/enforcer/static/css/main.caf592d6.css.map",
+    "main.c71c640d.js.map": "/enforcer/static/js/main.c71c640d.js.map",
     "496.fa56f9ff.chunk.js.map": "/enforcer/static/js/496.fa56f9ff.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a7491aa5.css",
-    "static/js/main.d973a826.js"
+    "static/css/main.caf592d6.css",
+    "static/js/main.c71c640d.js"
   ]
 }
