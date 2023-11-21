@@ -3,8 +3,9 @@ import './App.css';
 import { DropZone } from './DropZone'
 import { ResultsTable, CheckResult, DataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
+import { Footer } from './Footer'; 
 
-import { getCoordListFromGame, Coord, ListChecks, Check, getUniqueCoords, isBoxController } from 'slp-enforcer'
+import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
         for (let i = 0; i < 4; i++) {
           if (ports.includes(i)) {
             for (let player of game.getSettings()?.players!) {
-              if (player.playerIndex == i) {
+              if (player.playerIndex === i) {
                 // Wow, that was a lot just to match these
                 characterIds[i] = player.characterId!
                 costumes[i] = player.characterColor!
@@ -137,6 +138,7 @@ function App() {
         <DropZone processFile={runChecks} isActive={progress < 1.0 || results.length === 0} setProgress={setProgress} handleResults={handleResults} />
         <ResultsTable results={results} isActive={progress >= 1.0 && results.length > 0}></ResultsTable>
         <ProgressBar progress={progress} />
+        <Footer isActive={progress < 1.0 || results.length === 0} />
       </header>
     </div>
   );
