@@ -8,3 +8,7 @@ You can find the latest live running version of the [Enforcer app here](https://
 ## Run the App Locally
 
 `yarn start`
+
+## Thanks
+
+Thanks to Rags for the sweet Box / Controller icons!
