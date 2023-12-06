@@ -1,6 +1,8 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
 import {ExpandedRow} from './ExpandedRow'
+import digitalIcon from './icon/boxcord.png';
+import analogIcon from './icon/contcord.png';
 const stageImages = require.context('./stages/', true);
 const characterIcons = require.context('./characters/', true);
 
@@ -16,14 +18,33 @@ export function StageIcon({ stageId }: { stageId: number}): JSX.Element {
           />
 }
 
-export function CharacterIcon({ characterId, costume, results, controllerType }: { characterId: number, costume: number, results: string, controllerType: string}): JSX.Element {
+export function ControllerTypeIcon({ controllerType }: { controllerType: string}): JSX.Element {
+  if (controllerType === "digital") {
+    return <img
+      src={digitalIcon}
+      width={24}
+      alt={"📦"}
+    />
+  }
+  if (controllerType === "analog") {
+    return <img
+      src={analogIcon}
+      width={24}
+      alt={"🕹️"}
+    />
+  }
+  return <div>?</div>
+}
+
+export function ResultIcons({ characterId, costume, results, controllerType }: { characterId: number, costume: number, results: string, controllerType: string}): JSX.Element {
   try {
     if (characterId === undefined) {
       return <div/>
     }
     let stage: string = characterIcons(`./${characterId}/${costume}/stock.png`);
     return (  <div className="characterResultsContainer">
-                <div className="resultsText">{results}{controllerType}</div>
+                <div className="resultsText">{results}</div>
+                <ControllerTypeIcon controllerType={controllerType}/>
                 <img
                   src={stage}
                   width={24}
@@ -107,7 +128,7 @@ const columns: TableColumn<DataRow>[] = [
     selector: row => row.p1results,
     maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[0], 
+      ResultIcons({characterId: row.characterIds[0], 
         costume: row.costumes[0], 
         results: row.p1results, 
         controllerType: row.controllerType[0]})
@@ -118,7 +139,7 @@ const columns: TableColumn<DataRow>[] = [
     selector: row => row.p2results,
     maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[1], 
+      ResultIcons({characterId: row.characterIds[1], 
         costume: row.costumes[1], 
         results: row.p2results,
         controllerType: row.controllerType[1]})
@@ -129,7 +150,7 @@ const columns: TableColumn<DataRow>[] = [
     selector: row => row.p3results,
     maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[2], 
+      ResultIcons({characterId: row.characterIds[2], 
         costume: row.costumes[2], 
         results: row.p3results,
         controllerType: row.controllerType[2]})
@@ -140,7 +161,7 @@ const columns: TableColumn<DataRow>[] = [
     selector: row => row.p4results,
     maxWidth: "120px",
     cell: (row) => (
-      CharacterIcon({characterId: row.characterIds[3], 
+      ResultIcons({characterId: row.characterIds[3], 
         costume: row.costumes[3], 
         results: row.p4results,
         controllerType: row.controllerType[3]})
