@@ -90,16 +90,15 @@ function App() {
                 coords = getCoordListFromGame(game, i, true)
               }
 
-              // Only do checks for boxes
               if (isBoxController(getCoordListFromGame(game, i, true))) {
                 controllerType[i] = "digital"
-                if (check.checkFunction(game, i, coords)) {
-                  checkResult.passed[i] = "❌"
-                  playerPassed[i] = "❌"
-                  passed = "❌ Failed"
-                }
               } else {
                 controllerType[i] = "analog"
+              }
+              if (check.checkFunction(game, i, coords).result) {
+                checkResult.passed[i] = "❌"
+                playerPassed[i] = "❌"
+                passed = "❌ Failed"
               }
             }
             checkResults.push(checkResult)
