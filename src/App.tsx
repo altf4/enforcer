@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './App.css';
 import { DropZone } from './DropZone'
-import { ResultsTable, CheckResult, DataRow } from './ResultsTable'
+import { ResultsTable, CheckDisplayResult, DataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
 import { Footer } from './Footer'; 
 
@@ -36,7 +36,7 @@ function App() {
         let characterIds: number[] = [-1, -1, -1, -1]
         let costumes: number[] = [-1, -1, -1, -1]
 
-        let checkResults: CheckResult[] = []
+        let checkResults: CheckDisplayResult[] = []
 
         const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
         if (ports === undefined) {
@@ -72,7 +72,7 @@ function App() {
           checks = ListChecks()
 
           for (let check of checks) {
-            let checkResult: CheckResult = {
+            let checkResult: CheckDisplayResult = {
               name: check.name,
               passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"]
             }

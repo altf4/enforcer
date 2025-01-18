@@ -71,10 +71,10 @@ export type DataRow = {
   characterIds: number[]
   controllerType: string[]
   costumes: number[]
-  details: CheckResult[]
+  details: CheckDisplayResult[]
 }
 
-export type CheckResult = {
+export type CheckDisplayResult = {
   name: string
   passed: string[] // Array in player order
 }
