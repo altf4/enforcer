@@ -1,6 +1,7 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
 import {CheckDataRow, ViolationsDataRow} from './ResultsTable'
+import {CoordElement} from './CoordElement'
 
 export type ViolationsDisplayRow = {
   checkName: string
@@ -11,7 +12,7 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
     if (dataRow.checkName === "Illegal SDI") {
         let elements: JSX.Element[] = [<div>{dataRow.reason}</div>]
         for (let [i, coord] of dataRow.evidence.entries()) {
-            elements.push(<div>Frame: {dataRow.metric + i} ({coord.x}, {coord.x})</div>)
+            elements.push(<CoordElement frameNumber={dataRow.metric + i} x={coord.x} y={coord.y}/>)
         } 
         return <div>{elements}</div>
     }
