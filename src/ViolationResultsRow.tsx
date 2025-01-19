@@ -35,7 +35,7 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
     if (dataRow.checkName === "Fast Crouch Uptilt") {
         let elements: JSX.Element[] = []
         for (let [i, coord] of dataRow.evidence.entries()) {
-            elements.push(<div>Frame: {dataRow.metric + i} Main stick: ({coord.x}, {coord.y})</div>)
+            elements.push(<CoordElement frameNumber={dataRow.metric + i} x={coord.x} y={coord.y}/>)
         } 
         return <div>{elements}</div>
     }

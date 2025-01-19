@@ -28,7 +28,7 @@ export function CoordElement(props: CoordProps) {
         let dotSize: number = 4
         context.beginPath()
         context.fillStyle = "red"
-        context.arc((props.x * radius) + radius, (props.y * radius) + radius, dotSize, 0, 2 * Math.PI)
+        context.arc((props.x * radius) + radius, (props.y * -radius) + radius, dotSize, 0, 2 * Math.PI)
         context.fill()
     })
 
