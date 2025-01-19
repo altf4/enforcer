@@ -1,13 +1,15 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
-import {DataRow} from './ResultsTable'
+import {GameDataRow, ViolationsDataRow} from './ResultsTable'
+import {ViolationsResultsRow} from './ViolationResultsRow'
 
-export type ExpandedDataRow = {
+export type GameDisplayRow = {
   name: string
   p1result: string
   p2result: string
   p3result: string
   p4result: string
+  violations: ViolationsDataRow[][]
 }
 
 const customStyles = {
@@ -34,7 +36,7 @@ const customStyles = {
   },
 };
 
-const columns: TableColumn<ExpandedDataRow>[] = [
+const columns: TableColumn<GameDisplayRow>[] = [
   {
     name: 'Check Name',
     selector: row => row.name,
@@ -65,15 +67,18 @@ const columns: TableColumn<ExpandedDataRow>[] = [
 
 ]
 
-export function ExpandedRow({ results }: { results: DataRow[] }): JSX.Element {
-    let expandedDataRows: ExpandedDataRow[] = []
-    for (let checkResult of results[0].details) {
-      let expandedDataRow: ExpandedDataRow = {
+const ExpandedComponent = ({ data }: {data: any}) => <ViolationsResultsRow checkDataRow={data}/>
+
+export function GameResultsRow({ results }: { results: GameDataRow }): JSX.Element {
+    let expandedDataRows: GameDisplayRow[] = []
+    for (let checkResult of results.details) {
+      let expandedDataRow: GameDisplayRow = {
         name: checkResult.name,
         p1result: checkResult.passed[0],
         p2result: checkResult.passed[1],
         p3result: checkResult.passed[2],
         p4result: checkResult.passed[3],
+        violations: checkResult.violations
       }
       expandedDataRows.push(expandedDataRow)
     }
@@ -81,5 +86,7 @@ export function ExpandedRow({ results }: { results: DataRow[] }): JSX.Element {
     return <DataTable columns={columns}
                     data={expandedDataRows}
                     customStyles={customStyles}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
             />
 }

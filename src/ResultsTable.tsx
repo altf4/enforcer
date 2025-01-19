@@ -1,6 +1,6 @@
 import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
-import {ExpandedRow} from './ExpandedRow'
+import {GameResultsRow} from './GameResultsRow'
 import digitalIcon from './icon/boxcord.png';
 import analogIcon from './icon/contcord.png';
 const stageImages = require.context('./stages/', true);
@@ -58,25 +58,28 @@ export function ResultIcons({ characterId, costume, results, controllerType }: {
   }
 }
 
-const ExpandedComponent = ({ data }: {data: any}) => <ExpandedRow results={[data]}/>
-
-export type DataRow = {
+export type GameDataRow = {
   filename: string
   stage: number
-  result: string
-  p1results: string
-  p2results: string
-  p3results: string
-  p4results: string
+  overallResult: string
+  results: string[]
   characterIds: number[]
-  controllerType: string[]
+  controllerTypes: string[]
   costumes: number[]
-  details: CheckDisplayResult[]
+  details: CheckDataRow[]
 }
 
-export type CheckDisplayResult = {
+export type CheckDataRow = {
   name: string
-  passed: string[] // Array in player order
+  passed: string[]
+  violations: ViolationsDataRow[][]
+}
+
+export type ViolationsDataRow = {
+  checkName: string
+  evidence: any[]
+  reason: string
+  metric: number
 }
 
 const customStyles = {
@@ -103,7 +106,7 @@ const customStyles = {
   },
 };
 
-const columns: TableColumn<DataRow>[] = [
+const columns: TableColumn<GameDataRow>[] = [
   {
     name: 'Filename',
     selector: row => row.filename,
@@ -119,61 +122,64 @@ const columns: TableColumn<DataRow>[] = [
   },
   {
     name: 'Result',
-    selector: row => row.result,
+    selector: row => row.overallResult,
     maxWidth: "150px",
     sortable: true,
   },
   {
     name: 'P1',
-    selector: row => row.p1results,
+    selector: row => row.results[0],
     maxWidth: "120px",
     cell: (row) => (
       ResultIcons({characterId: row.characterIds[0], 
         costume: row.costumes[0], 
-        results: row.p1results, 
-        controllerType: row.controllerType[0]})
+        results: row.results[0], 
+        controllerType: row.controllerTypes[0]})
     ),
   },
   {
     name: 'P2',
-    selector: row => row.p2results,
+    selector: row => row.results[1],
     maxWidth: "120px",
     cell: (row) => (
       ResultIcons({characterId: row.characterIds[1], 
         costume: row.costumes[1], 
-        results: row.p2results,
-        controllerType: row.controllerType[1]})
+        results: row.results[1],
+        controllerType: row.controllerTypes[1]})
     ),
   },
   {
     name: 'P3',
-    selector: row => row.p3results,
+    selector: row => row.results[2],
     maxWidth: "120px",
     cell: (row) => (
       ResultIcons({characterId: row.characterIds[2], 
         costume: row.costumes[2], 
-        results: row.p3results,
-        controllerType: row.controllerType[2]})
+        results: row.results[2],
+        controllerType: row.controllerTypes[2]})
     ),
   },
   {
     name: 'P4',
-    selector: row => row.p4results,
+    selector: row => row.results[3],
     maxWidth: "120px",
     cell: (row) => (
       ResultIcons({characterId: row.characterIds[3], 
         costume: row.costumes[3], 
-        results: row.p4results,
-        controllerType: row.controllerType[3]})
+        results: row.results[3],
+        controllerType: row.controllerTypes[3]})
     ),
   },
 
 ]
 
-export function ResultsTable({ results, isActive }: { results: DataRow[], isActive: boolean }): JSX.Element {
+const ExpandedComponent = ({ data }: {data: any}) => <GameResultsRow results={data}/>
+
+export function ResultsTable({ results, isActive }: { results: GameDataRow[], isActive: boolean }): JSX.Element {
   if (!isActive) {
     return <div/>
   }
+  console.log(results)
   return <DataTable columns={columns}
                     data={results}
                     customStyles={customStyles}

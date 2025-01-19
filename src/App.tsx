@@ -1,19 +1,32 @@
 import * as React from 'react'
 import './App.css';
 import { DropZone } from './DropZone'
-import { ResultsTable, CheckDisplayResult, DataRow } from './ResultsTable'
+import { ResultsTable, CheckDataRow, GameDataRow, ViolationsDataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
 import { Footer } from './Footer'; 
 
-import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController } from 'slp-enforcer'
+import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
 
 function App() {
-  const [results, updateResults] = React.useState<DataRow[]>([])
+  const [results, updateResults] = React.useState<GameDataRow[]>([])
   const [progress, setProgress] = React.useState<number>(1)
 
-  async function handleResults(newResults: DataRow[]) {
+  async function handleResults(newResults: GameDataRow[]) {
     updateResults(oldList => [...oldList, ...newResults])
+  }
+
+  function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {
+    let dataRows: ViolationsDataRow[] = [] 
+    for (let violation of violations) {
+      let newRow: ViolationsDataRow = {checkName: checkName, 
+        metric: violation.metric, 
+        reason: violation.reason,
+        evidence: violation.evidence
+      }
+      dataRows.push(newRow)
+    }
+    return dataRows
   }
 
   function runChecks(inputFile: File) {
@@ -36,7 +49,7 @@ function App() {
         let characterIds: number[] = [-1, -1, -1, -1]
         let costumes: number[] = [-1, -1, -1, -1]
 
-        let checkResults: CheckDisplayResult[] = []
+        let checkResults: CheckDataRow[] = []
 
         const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
         if (ports === undefined) {
@@ -72,9 +85,10 @@ function App() {
           checks = ListChecks()
 
           for (let check of checks) {
-            let checkResult: CheckDisplayResult = {
+            let checkResult: CheckDataRow = {
               name: check.name,
-              passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"]
+              passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"],
+              violations: [[], [], [], []]
             }
             for (let i = 0; i < 4; i++) {
               if (!ports.includes(i)) {
@@ -95,10 +109,13 @@ function App() {
               } else {
                 controllerType[i] = "analog"
               }
-              if (check.checkFunction(game, i, coords).result) {
+
+              let singleCheckResults = check.checkFunction(game, i, coords)
+              if (singleCheckResults.result) {
                 checkResult.passed[i] = "❌"
                 playerPassed[i] = "❌"
                 passed = "❌ Failed"
+                checkResult.violations[i] = violationArrayToDataRows(singleCheckResults.violations, check.name)
               }
             }
             checkResults.push(checkResult)
@@ -110,15 +127,12 @@ function App() {
           ourStage = -1
         }
 
-        let fileResult: DataRow = {
+        let fileResult: GameDataRow = {
           filename: inputFile.name,
           stage: ourStage,
-          result: passed,
-          p1results: playerPassed[0],
-          p2results: playerPassed[1],
-          p3results: playerPassed[2],
-          p4results: playerPassed[3],
-          controllerType: controllerType,
+          overallResult: passed,
+          results: playerPassed,
+          controllerTypes: controllerType,
           characterIds: characterIds,
           costumes: costumes,
           details: checkResults
