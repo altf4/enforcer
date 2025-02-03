@@ -8,6 +8,8 @@ import { Footer } from './Footer';
 import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
 
+let LIBRARY_VERSION: string = "1.1.6"
+
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
   const [progress, setProgress] = React.useState<number>(1)
@@ -151,7 +153,7 @@ function App() {
         <DropZone processFile={runChecks} isActive={progress < 1.0 || results.length === 0} setProgress={setProgress} handleResults={handleResults} />
         <ResultsTable results={results} isActive={progress >= 1.0 && results.length > 0}></ResultsTable>
         <ProgressBar progress={progress} />
-        <Footer isActive={progress < 1.0 || results.length === 0} />
+        <Footer isActive={progress < 1.0 || results.length === 0} version={LIBRARY_VERSION}/>
       </header>
     </div>
   );
