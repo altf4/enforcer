@@ -23,7 +23,7 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
     }
 
     if (dataRow.checkName === "Uptilt Rounding") {
-        return <div><CoordMap coords={dataRow.evidence}/></div>
+        return <div><CoordMap coords={dataRow.evidence} showZones={true}/></div>
     }
 
     if (dataRow.checkName === "Disallowed Analog C-Stick Values") {
@@ -41,6 +41,10 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
         return <div>{elements}</div>
     }
     
+    if (dataRow.checkName === "Control Stick Visualization") {
+        return <div><CoordMap coords={dataRow.evidence} showZones={false}/></div>
+    }
+
     console.error("Unknown check: ", dataRow.checkName)
     return <div>Unknown check: {dataRow.checkName}</div>
 }

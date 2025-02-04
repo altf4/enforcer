@@ -119,6 +119,10 @@ function App() {
                 passed = "❌ Failed"
                 checkResult.violations[i] = violationArrayToDataRows(singleCheckResults.violations, check.name)
               }
+              if (check.name === "Control Stick Visualization"){
+                checkResult.passed[i] = "✅"
+                checkResult.violations[i] = violationArrayToDataRows(singleCheckResults.violations, check.name)
+              }
             }
             checkResults.push(checkResult)
           }

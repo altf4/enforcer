@@ -80,6 +80,17 @@ export function GameResultsRow({ results }: { results: GameDataRow }): JSX.Eleme
         p4result: checkResult.passed[3],
         violations: checkResult.violations
       }
+      if (checkResult.name === "Control Stick Visualization") {
+        expandedDataRow = {
+          name: checkResult.name,
+          p1result: "",
+          p2result: "",
+          p3result: "",
+          p4result: "",
+          violations: checkResult.violations
+        }
+        console.log("vio", checkResult.violations)
+      }
       expandedDataRows.push(expandedDataRow)
     }
 

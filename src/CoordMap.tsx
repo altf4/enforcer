@@ -4,6 +4,7 @@ import { Coord } from 'slp-enforcer'
 let radius: number = 140
 export type CoordMapProps = {
     coords: Coord[]
+    showZones: boolean
 }
 
 export function CoordMap(props: CoordMapProps) {
@@ -23,27 +24,29 @@ export function CoordMap(props: CoordMapProps) {
         context.arc(radius, radius, radius, 0, 2 * Math.PI)
         context.stroke()
 
-        // Draw blue square representing the uptilt rounding box
-        context.beginPath()
-        context.lineWidth = 2
-        context.fillStyle = "blue"
-        let anchorX =  (-0.2875 * radius) + radius
-        let anchorY = (0.275 * -radius) + radius
-        let width =  0.2875*2 * radius
-        let height = .075 * radius
-        context.rect(anchorX, anchorY, width, height)
-        context.fill()
-
-        // Draw orange square representing the uptilt area
-        context.beginPath()
-        context.lineWidth = 2
-        context.fillStyle = "orange"
-        anchorX =  (-0.2875 * radius) + radius
-        anchorY = (0.45 * -radius) + radius
-        width =  0.2875*2 * radius
-        height = ((0.45-0.2875) * radius) +1
-        context.rect(anchorX, anchorY, width, height)
-        context.fill()
+        if (props.showZones) {
+            // Draw blue square representing the uptilt rounding box
+            context.beginPath()
+            context.lineWidth = 2
+            context.fillStyle = "blue"
+            let anchorX =  (-0.2875 * radius) + radius
+            let anchorY = (0.275 * -radius) + radius
+            let width =  0.2875*2 * radius
+            let height = .075 * radius
+            context.rect(anchorX, anchorY, width, height)
+            context.fill()
+    
+            // Draw orange square representing the uptilt area
+            context.beginPath()
+            context.lineWidth = 2
+            context.fillStyle = "orange"
+            anchorX =  (-0.2875 * radius) + radius
+            anchorY = (0.45 * -radius) + radius
+            width =  0.2875*2 * radius
+            height = ((0.45-0.2875) * radius) +1
+            context.rect(anchorX, anchorY, width, height)
+            context.fill()
+        }
         
         for (let coord of props.coords) {
             // Draw coord dot
