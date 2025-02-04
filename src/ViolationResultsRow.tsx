@@ -2,6 +2,7 @@ import './index.css'
 import DataTable, { TableColumn } from 'react-data-table-component'
 import {CheckDataRow, ViolationsDataRow} from './ResultsTable'
 import {CoordElement} from './CoordElement'
+import {CoordMap} from './CoordMap'
 
 export type ViolationsDisplayRow = {
   checkName: string
@@ -22,7 +23,7 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
     }
 
     if (dataRow.checkName === "Uptilt Rounding") {
-        return <div>{dataRow.reason}</div>
+        return <div><CoordMap coords={dataRow.evidence}/></div>
     }
 
     if (dataRow.checkName === "Disallowed Analog C-Stick Values") {

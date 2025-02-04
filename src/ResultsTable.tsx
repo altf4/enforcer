@@ -179,7 +179,6 @@ export function ResultsTable({ results, isActive }: { results: GameDataRow[], is
   if (!isActive) {
     return <div/>
   }
-  console.log(results)
   return <DataTable columns={columns}
                     data={results}
                     customStyles={customStyles}
