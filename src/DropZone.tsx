@@ -56,7 +56,7 @@ export function DropZone(props: any) {
   } = useDropzone();
 
   if (!props.isActive) {
-    return
+    return null
   }
 
   return (

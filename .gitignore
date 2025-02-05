@@ -17,6 +17,7 @@ bower_components
 psd
 thumb
 sketch
+package-lock.json
 
 ### yarn ###
 # https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
@@ -36,3 +37,4 @@ sketch
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/react,yarn
+/.idea/
