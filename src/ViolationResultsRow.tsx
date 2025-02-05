@@ -45,6 +45,10 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
         return <div><CoordMap coords={dataRow.evidence} showZones={false}/></div>
     }
 
+    if (dataRow.checkName === "C-Stick Visualization") {
+        return <div><CoordMap coords={dataRow.evidence} showZones={false}/></div>
+    }
+
     console.error("Unknown check: ", dataRow.checkName)
     return <div>Unknown check: {dataRow.checkName}</div>
 }
