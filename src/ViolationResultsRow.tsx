@@ -45,6 +45,10 @@ function RenderViolation(dataRow: ViolationsDataRow): JSX.Element {
         return <div><CoordMap coords={dataRow.evidence} showZones={false}/></div>
     }
 
+    if (dataRow.checkName === "GoomWave Clamping") {
+        return <div>Found no coordinates within 0.1 not on cardinals. See Control Stick Visualization.</div>
+    }
+
     console.error("Unknown check: ", dataRow.checkName)
     return <div>Unknown check: {dataRow.checkName}</div>
 }

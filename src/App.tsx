@@ -8,7 +8,7 @@ import { Footer } from './Footer';
 import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
 
-let LIBRARY_VERSION: string = "1.3.0"
+let LIBRARY_VERSION: string = "1.4.0"
 
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
