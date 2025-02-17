@@ -8601,10 +8601,10 @@ slash@^4.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-4.0.0.tgz#2422372176c4c6c5addb5e2ada885af984b396a7"
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
-slp-enforcer@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/slp-enforcer/-/slp-enforcer-1.4.0.tgz#3cb7aedf3244e033d373cf6e89c3dc905121e875"
-  integrity sha512-BivxuB/xV2LOl8UaYtQhdt9B6U3OLZ0l0uU8dPbenw3NXCNkBIfNFghul57Hm7kTonT+1TOaIDhGkcGZpq1lYw==
+slp-enforcer@1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/slp-enforcer/-/slp-enforcer-1.4.1.tgz#2bf07e47e2d94884867cf36d4fd47b0631a6c008"
+  integrity sha512-UItSTBCzzfoytdGzrOa1QUAKvppkaxovyzmFLAR9C/h+Qi2TKcskwLA8befxfkfYoZwTS7F6E5boLAZFPHVfGg==
   dependencies:
     "@slippi/slippi-js" "^6.7.0"
     semver "^7.5.4"
