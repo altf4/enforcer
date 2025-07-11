@@ -19,7 +19,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-scripts": "5.0.1",
-    "slp-enforcer": "1.4.2",
+    "slp-enforcer": "1.4.4",
     "styled-components": "^6.1.1",
     "typescript": "^5.2.2",
     "util": "^0.12.5",
