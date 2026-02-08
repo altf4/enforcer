@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { HeroSection } from './HeroSection';
-import { FeatureCards } from './FeatureCards';
 import { Container } from '../layout/Container';
 
 const WelcomeContainer = styled.div`
@@ -21,7 +20,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ children }) => {
       <Container $maxWidth="900px" $centered>
         <HeroSection />
         {children}
-        <FeatureCards />
       </Container>
     </WelcomeContainer>
   );
