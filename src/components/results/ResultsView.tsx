@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { StatusDashboard } from './StatusDashboard';
 import { GameCard } from './GameCard';
-import { UploadMoreButton } from './UploadMoreButton';
 
 interface GameDataRow {
   filename: string;
@@ -17,7 +16,6 @@ interface GameDataRow {
 
 interface ResultsViewProps {
   results: GameDataRow[];
-  onUploadMore: () => void;
 }
 
 interface VisibilityState {
@@ -62,7 +60,7 @@ const getResultCategory = (result: string): 'passed' | 'failed' | 'special' => {
   return 'special';
 };
 
-export const ResultsView: React.FC<ResultsViewProps> = ({ results, onUploadMore }) => {
+export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
   // Default: show only failed results
   const [visibility, setVisibility] = useState<VisibilityState>({
     passed: false,
@@ -95,8 +93,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results, onUploadMore 
         visibility={visibility}
         onToggleVisibility={toggleVisibility}
       />
-
-      <UploadMoreButton onClick={onUploadMore} />
 
       <GamesContainer>
         {filteredResults.map((game, index) => (

@@ -179,7 +179,11 @@ function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <div className="App">
-        <Header version={LIBRARY_VERSION} />
+        <Header
+          version={LIBRARY_VERSION}
+          showUploadButton={showResults}
+          onUploadMore={triggerFileUpload}
+        />
         <header className="App-header">
           {/* Sticky Progress Bar - shown while processing with results */}
           {isProcessing && (
@@ -203,7 +207,7 @@ function App() {
           )}
 
           {showResults && (
-            <ResultsView results={results} onUploadMore={triggerFileUpload} />
+            <ResultsView results={results} />
           )}
 
           {/* Initial Progress Bar - shown before any results */}

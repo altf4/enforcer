@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { Button } from '../shared/Button';
 
 const HeaderContainer = styled.header`
   display: flex;
@@ -30,15 +32,45 @@ const VersionBadge = styled.span`
   font-weight: ${({ theme }) => theme.typography.weights.medium};
 `;
 
+const CompactUploadButton = styled(Button)`
+  gap: ${({ theme }) => theme.spacing.xs};
+  font-size: ${({ theme }) => theme.typography.sizes.small};
+`;
+
+const IconWrapper = styled.div`
+  width: 16px;
+  height: 16px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
 interface HeaderProps {
   version?: string;
+  showUploadButton?: boolean;
+  onUploadMore?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ version }) => {
+export const Header: React.FC<HeaderProps> = ({
+  version,
+  showUploadButton = false,
+  onUploadMore
+}) => {
   return (
     <HeaderContainer>
       <Title>SLP Enforcer</Title>
-      {version && <VersionBadge>v{version}</VersionBadge>}
+      {showUploadButton && onUploadMore ? (
+        <CompactUploadButton onClick={onUploadMore} $variant="primary" $size="small">
+          <IconWrapper>
+            <PlusIcon />
+          </IconWrapper>
+          Upload More
+        </CompactUploadButton>
+      ) : (
+        version && <VersionBadge>v{version}</VersionBadge>
+      )}
     </HeaderContainer>
   );
 };
