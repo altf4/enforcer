@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import styled, { keyframes } from 'styled-components';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { shake } from './styles/animations';
+import { computeFileHash } from './utils/fileHash';
 
 const getColor = (isDragAccept: boolean, isDragReject: boolean, isFocused: boolean, theme: any) => {
   if (isDragAccept) {
@@ -128,27 +129,42 @@ export interface DropZoneHandle {
 export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // Notify App that we're starting to process files
-      if (props.startProcessing) {
-        props.startProcessing(acceptedFiles.length);
+      // Step 1: Compute hashes for all files in parallel
+      const filesWithHashes = await Promise.all(
+        acceptedFiles.map(async (file) => ({
+          file,
+          hash: await computeFileHash(file)
+        }))
+      );
+
+      // Step 2: Filter out duplicates using registerFileHash
+      const uniqueFiles = filesWithHashes.filter(({ hash }) =>
+        props.registerFileHash(hash)
+      );
+
+      // If all files are duplicates, exit early
+      if (uniqueFiles.length === 0) {
+        return;
       }
 
+      // Step 3: Start processing with unique file count
+      if (props.startProcessing) {
+        props.startProcessing(uniqueFiles.length);
+      }
+
+      // Step 4: Process only unique files
       let count = 0;
-      const promises: Promise<any>[] = acceptedFiles.map((inputFile) => {
-        const process = props.processFile(inputFile);
+      const promises: Promise<any>[] = uniqueFiles.map(({ file }) => {
+        const process = props.processFile(file);
         process.then((result: any) => {
           count += 1;
-          props.setProgress(count / acceptedFiles.length);
-          // Stream each result individually as it completes
+          props.setProgress(count / uniqueFiles.length);
           props.handleResults(result);
         });
         return process;
       });
 
-      // Wait for all files to complete
       await Promise.all(promises);
-
-      // Reset progress to indicate completion
       props.setProgress(1.0);
     },
     [props]

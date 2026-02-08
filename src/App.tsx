@@ -22,6 +22,7 @@ function App() {
   const [progress, setProgress] = React.useState<number>(1)
   const [totalFileCount, setTotalFileCount] = React.useState<number>(0)
   const [processedFileCount, setProcessedFileCount] = React.useState<number>(0)
+  const [uploadedFileHashes, setUploadedFileHashes] = React.useState<Set<string>>(new Set())
   const dropZoneRef = React.useRef<DropZoneHandle>(null)
 
   function handleSingleResult(newResult: GameDataRow) {
@@ -33,6 +34,14 @@ function App() {
     setTotalFileCount(fileCount)
     setProcessedFileCount(0)
     setProgress(0)
+  }
+
+  function registerFileHash(hash: string): boolean {
+    if (uploadedFileHashes.has(hash)) {
+      return false; // Duplicate detected
+    }
+    setUploadedFileHashes(prev => new Set([...prev, hash]));
+    return true; // New file, proceed with processing
   }
 
   function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {
@@ -202,14 +211,13 @@ function App() {
                 setProgress={setProgress}
                 handleResults={handleSingleResult}
                 startProcessing={startProcessing}
+                registerFileHash={registerFileHash}
               />
             </WelcomeScreen>
           )}
 
           {showResults && (
-            <ResultsView results={results} onUploadMore={function (): void {
-              throw new Error('Function not implemented.');
-            } } />
+            <ResultsView results={results} />
           )}
 
           {/* Initial Progress Bar - shown before any results */}
@@ -225,6 +233,7 @@ function App() {
                 setProgress={setProgress}
                 handleResults={handleSingleResult}
                 startProcessing={startProcessing}
+                registerFileHash={registerFileHash}
               />
             </div>
           )}
