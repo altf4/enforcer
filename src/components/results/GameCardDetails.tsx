@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { CheckDataRow } from '../../ResultsTable';
 import { CheckList } from '../checks/CheckList';
 import { PlayerCheckSection } from '../checks/PlayerCheckSection';
+import { VisualizationCard } from '../checks/VisualizationCard';
 
 interface GameCardDetailsProps {
   details: CheckDataRow[];
@@ -54,13 +55,19 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
     );
   }
 
-  // Collect all violations per player
+  // Collect all violations and visualizations per player
   const playerViolations: any[][] = [[], [], [], []];
+  const playerVisualizations: any[][] = [[], [], [], []];
 
   details.forEach((check) => {
     check.violations.forEach((violations, playerIndex) => {
       violations.forEach((violation) => {
-        playerViolations[playerIndex].push(violation);
+        // Separate visualizations from actual violations
+        if (violation.checkName === "Control Stick Visualization") {
+          playerVisualizations[playerIndex].push(violation);
+        } else {
+          playerViolations[playerIndex].push(violation);
+        }
       });
     });
   });
@@ -68,6 +75,11 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
   // Find players with violations
   const playersWithViolations = playerViolations
     .map((violations, index) => ({ index, violations, count: violations.length }))
+    .filter(player => player.count > 0);
+
+  // Find players with visualizations
+  const playersWithVisualizations = playerVisualizations
+    .map((visualizations, index) => ({ index, visualizations, count: visualizations.length }))
     .filter(player => player.count > 0);
 
   return (
@@ -108,6 +120,26 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
           </p>
         )}
       </Section>
+
+      {/* Visualizations Section */}
+      {playersWithVisualizations.length > 0 && (
+        <>
+          <Divider />
+          <Section>
+            <SectionTitle>Control Stick Visualizations</SectionTitle>
+            {playersWithVisualizations.map(({ index, visualizations }) => (
+              <div key={index}>
+                <h5 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#e5e7eb' }}>
+                  Player {index + 1}
+                </h5>
+                {visualizations.map((visualization: any, vizIndex: number) => (
+                  <VisualizationCard key={vizIndex} visualization={visualization} />
+                ))}
+              </div>
+            ))}
+          </Section>
+        </>
+      )}
     </Container>
   );
 };
