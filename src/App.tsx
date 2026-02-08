@@ -1,9 +1,16 @@
 import * as React from 'react'
+import { ThemeProvider } from 'styled-components';
+import { theme } from './styles/theme';
+import { GlobalStyles } from './styles/GlobalStyles';
 import './App.css';
 import { DropZone } from './DropZone'
-import { ResultsTable, CheckDataRow, GameDataRow, ViolationsDataRow } from './ResultsTable'
+import { CheckDataRow, GameDataRow, ViolationsDataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
-import { Footer } from './Footer'; 
+import { Footer } from './Footer';
+import { Header } from './components/layout/Header';
+import { WelcomeScreen } from './components/welcome/WelcomeScreen';
+import { ResultsView } from './components/results/ResultsView';
+import { StickyProgressBar } from './components/shared/StickyProgressBar'; 
 
 import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
@@ -13,9 +20,18 @@ let LIBRARY_VERSION: string = "1.4.4"
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
   const [progress, setProgress] = React.useState<number>(1)
+  const [totalFileCount, setTotalFileCount] = React.useState<number>(0)
+  const [processedFileCount, setProcessedFileCount] = React.useState<number>(0)
 
-  async function handleResults(newResults: GameDataRow[]) {
-    updateResults(oldList => [...oldList, ...newResults])
+  function handleSingleResult(newResult: GameDataRow) {
+    updateResults(oldList => [...oldList, newResult])
+    setProcessedFileCount(prev => prev + 1)
+  }
+
+  function startProcessing(fileCount: number) {
+    setTotalFileCount(fileCount)
+    setProcessedFileCount(0)
+    setProgress(0)
   }
 
   function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {
@@ -150,16 +166,65 @@ function App() {
     })
   }
 
+  const showWelcome = results.length === 0 && progress >= 1.0;
+  const showResults = results.length > 0;
+  const isProcessing = progress < 1.0 && results.length > 0;
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <div className="title" >SLP Enforcer</div>
-        <DropZone processFile={runChecks} isActive={progress < 1.0 || results.length === 0} setProgress={setProgress} handleResults={handleResults} />
-        <ResultsTable results={results} isActive={progress >= 1.0 && results.length > 0}></ResultsTable>
-        <ProgressBar progress={progress} />
-        <Footer isActive={progress < 1.0 || results.length === 0} version={LIBRARY_VERSION}/>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <div className="App">
+        <Header version={LIBRARY_VERSION} />
+        <header className="App-header">
+          {/* Sticky Progress Bar - shown while processing with results */}
+          {isProcessing && (
+            <StickyProgressBar
+              progress={progress}
+              currentFile={processedFileCount}
+              totalFiles={totalFileCount}
+            />
+          )}
+
+          {showWelcome && (
+            <WelcomeScreen>
+              <DropZone
+                processFile={runChecks}
+                isActive={true}
+                setProgress={setProgress}
+                handleResults={handleSingleResult}
+                startProcessing={startProcessing}
+              />
+            </WelcomeScreen>
+          )}
+
+          {showResults && (
+            <ResultsView results={results} onUploadMore={scrollToTop} />
+          )}
+
+          {/* Initial Progress Bar - shown before any results */}
+          {!showResults && progress < 1.0 && <ProgressBar progress={progress} />}
+
+          {/* DropZone at bottom when showing results */}
+          {showResults && (
+            <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
+              <DropZone
+                processFile={runChecks}
+                isActive={true}
+                setProgress={setProgress}
+                handleResults={handleSingleResult}
+                startProcessing={startProcessing}
+              />
+            </div>
+          )}
+
+          <Footer isActive={showWelcome || showResults} version={LIBRARY_VERSION}/>
+        </header>
+      </div>
+    </ThemeProvider>
   );
 }
 
