@@ -3,6 +3,7 @@ import { CheckDataRow } from '../../ResultsTable';
 import { CheckList } from '../checks/CheckList';
 import { PlayerCheckSection } from '../checks/PlayerCheckSection';
 import { VisualizationCard } from '../checks/VisualizationCard';
+import { CoordMap } from '../../CoordMap';
 
 interface GameCardDetailsProps {
   details: CheckDataRow[];
@@ -37,6 +38,40 @@ const Divider = styled.div`
   height: 1px;
   background: ${({ theme }) => theme.colors.border};
   margin: ${({ theme }) => theme.spacing.md} 0;
+`;
+
+const VisualizationsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: ${({ theme }) => theme.spacing.md};
+  padding-top: ${({ theme }) => theme.spacing.md};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const VisualizationSlot = styled.div<{ $portIndex: number }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+  grid-column: ${({ $portIndex }) => $portIndex + 1};
+`;
+
+const PlayerLabel = styled.span`
+  font-weight: ${({ theme }) => theme.typography.weights.semibold};
+  font-size: ${({ theme }) => theme.typography.sizes.small};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  min-width: 24px;
+`;
+
+const VisualizationWrapper = styled.div`
+  background: ${({ theme }) => theme.colors.background.elevated};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  padding: ${({ theme }) => theme.spacing.sm};
+  overflow: hidden;
 `;
 
 export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
@@ -126,17 +161,24 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
         <>
           <Divider />
           <Section>
-            <SectionTitle>Control Stick Visualizations</SectionTitle>
-            {playersWithVisualizations.map(({ index, visualizations }) => (
-              <div key={index}>
-                <h5 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#e5e7eb' }}>
-                  Player {index + 1}
-                </h5>
-                {visualizations.map((visualization: any, vizIndex: number) => (
-                  <VisualizationCard key={vizIndex} visualization={visualization} />
-                ))}
-              </div>
-            ))}
+            <SectionTitle>
+              Control Stick Visualizations
+              <span style={{ fontWeight: 400, fontSize: '14px', marginLeft: '12px', color: '#9ca3af' }}>
+                ({playersWithVisualizations.length} player{playersWithVisualizations.length > 1 ? 's' : ''})
+              </span>
+            </SectionTitle>
+            <VisualizationsGrid>
+              {playersWithVisualizations.map(({ index, visualizations }) => (
+                <VisualizationSlot key={index} $portIndex={index}>
+                  <PlayerLabel>P{index + 1}:</PlayerLabel>
+                  {visualizations.map((visualization: any, vizIndex: number) => (
+                    <VisualizationWrapper key={vizIndex}>
+                      <CoordMap coords={visualization.evidence} showZones={false} />
+                    </VisualizationWrapper>
+                  ))}
+                </VisualizationSlot>
+              ))}
+            </VisualizationsGrid>
           </Section>
         </>
       )}
