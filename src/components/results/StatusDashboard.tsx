@@ -19,8 +19,8 @@ interface StatusDashboardProps {
 
 const DashboardContainer = styled.div`
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.xl};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  padding: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
   animation: ${fadeInDown} 0.4s ease-out;
 `;
 
@@ -33,15 +33,15 @@ const Title = styled.h2`
 `;
 
 const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  display: flex;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.lg};
-  max-width: 600px;
-  margin: 0 auto;
+  flex-wrap: wrap;
 
   @media (max-width: 768px) {
+    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: ${({ theme }) => theme.spacing.md};
+    gap: ${({ theme }) => theme.spacing.sm};
   }
 `;
 
@@ -54,12 +54,13 @@ const StatCard = styled.div<StatCardProps>`
   background: ${({ theme }) => theme.colors.background.secondary};
   border: 2px solid ${({ $color, $isVisible }) => $isVisible ? $color + '80' : $color + '20'};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing.md};
   text-align: center;
   transition: all ${({ theme }) => theme.transitions.normal};
   cursor: pointer;
   opacity: ${({ $isVisible }) => $isVisible ? 1 : 0.4};
   user-select: none;
+  min-width: 120px;
 
   &:hover {
     transform: translateY(-2px);
@@ -79,9 +80,9 @@ const StatCard = styled.div<StatCardProps>`
 `;
 
 const IconWrapper = styled.div<{ $color: string }>`
-  width: 32px;
-  height: 32px;
-  margin: 0 auto ${({ theme }) => theme.spacing.sm};
+  width: 24px;
+  height: 24px;
+  margin: 0 auto ${({ theme }) => theme.spacing.xs};
   color: ${({ $color }) => $color};
 
   svg {
@@ -91,7 +92,7 @@ const IconWrapper = styled.div<{ $color: string }>`
 `;
 
 const Count = styled.div<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.sizes.hero};
+  font-size: ${({ theme }) => theme.typography.sizes.h2};
   font-weight: ${({ theme }) => theme.typography.weights.bold};
   line-height: 1;
   color: ${({ $color }) => $color};
@@ -131,7 +132,6 @@ export const StatusDashboard: React.FC<StatusDashboardProps> = ({
 
   return (
     <DashboardContainer>
-      <Title>Results Summary</Title>
       <StatsGrid>
         <StatCard
           $color="#10b981"

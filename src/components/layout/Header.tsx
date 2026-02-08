@@ -6,13 +6,17 @@ const HeaderContainer = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.xl};
+  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
   width: 100%;
+
+  @media (max-width: 768px) {
+    padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const Title = styled.h1`
-  font-size: ${({ theme }) => theme.typography.sizes.hero};
-  line-height: ${({ theme }) => theme.typography.lineHeights.hero};
+  font-size: ${({ theme }) => theme.typography.sizes.h1};
+  line-height: ${({ theme }) => theme.typography.lineHeights.h1};
   font-weight: ${({ theme }) => theme.typography.weights.bold};
   font-family: ${({ theme }) => theme.typography.fonts.heading};
 
@@ -21,6 +25,11 @@ const Title = styled.h1`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: ${({ theme }) => theme.typography.sizes.h2};
+    line-height: ${({ theme }) => theme.typography.lineHeights.h2};
+  }
 `;
 
 const VersionBadge = styled.span`

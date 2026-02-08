@@ -43,7 +43,7 @@ const StageIconWrapper = styled.div`
 `;
 
 const Filename = styled.h3`
-  font-size: ${({ theme }) => theme.typography.sizes.body};
+  font-size: ${({ theme }) => theme.typography.sizes.small};
   font-weight: ${({ theme }) => theme.typography.weights.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0;
@@ -52,7 +52,7 @@ const Filename = styled.h3`
   white-space: nowrap;
 
   @media (max-width: 768px) {
-    font-size: ${({ theme }) => theme.typography.sizes.small};
+    font-size: ${({ theme }) => theme.typography.sizes.caption};
   }
 `;
 

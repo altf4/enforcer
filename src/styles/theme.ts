@@ -56,11 +56,17 @@ export const theme = {
   spacing: {
     xs: '4px',
     sm: '8px',
-    md: '16px',
-    lg: '24px',
-    xl: '32px',
-    xxl: '48px',
-    xxxl: '64px',
+    md: '12px',
+    lg: '16px',
+    xl: '24px',
+    xxl: '32px',
+    xxxl: '48px',
+  },
+  breakpoints: {
+    mobile: '768px',
+    tablet: '1024px',
+    desktop: '1440px',
+    wide: '1920px',
   },
   shadows: {
     low: '0 1px 3px rgba(0, 0, 0, 0.3)',

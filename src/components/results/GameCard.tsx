@@ -40,8 +40,9 @@ const CardContainer = styled.div<{ $statusColor: string; $delay: number }>`
   overflow: hidden;
   transition: all ${({ theme }) => theme.transitions.normal};
   animation: ${fadeInUp} 0.4s ease-out forwards;
-  animation-delay: ${({ $delay }) => $delay}ms;
+  animation-delay: 0ms;
   opacity: 0;
+  min-height: 120px;
 
   &:hover {
     transform: translateY(-2px);
@@ -51,7 +52,7 @@ const CardContainer = styled.div<{ $statusColor: string; $delay: number }>`
 `;
 
 const CardHeaderWrapper = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing.md};
   cursor: pointer;
   user-select: none;
   outline: none;

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import { theme } from './styles/theme';
 import { GlobalStyles } from './styles/GlobalStyles';
 import './App.css';
@@ -10,10 +11,15 @@ import { Footer } from './Footer';
 import { Header } from './components/layout/Header';
 import { WelcomeScreen } from './components/welcome/WelcomeScreen';
 import { ResultsView } from './components/results/ResultsView';
-import { StickyProgressBar } from './components/shared/StickyProgressBar'; 
-
+import { StickyProgressBar } from './components/shared/StickyProgressBar';
 import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
 import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
+
+const MainContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
 
 let LIBRARY_VERSION: string = "1.4.4"
 
@@ -194,38 +200,38 @@ function App() {
           onUploadMore={triggerFileUpload}
         />
         <header className="App-header">
-          {/* Sticky Progress Bar - shown while processing with results */}
-          {isProcessing && (
-            <StickyProgressBar
-              progress={progress}
-              currentFile={processedFileCount}
-              totalFiles={totalFileCount}
-            />
-          )}
-
-          {showWelcome && (
-            <WelcomeScreen>
-              <DropZone
-                processFile={runChecks}
-                isActive={true}
-                setProgress={setProgress}
-                handleResults={handleSingleResult}
-                startProcessing={startProcessing}
-                registerFileHash={registerFileHash}
+          <MainContent>
+            {/* Sticky Progress Bar - shown while processing with results */}
+            {isProcessing && (
+              <StickyProgressBar
+                progress={progress}
+                currentFile={processedFileCount}
+                totalFiles={totalFileCount}
               />
-            </WelcomeScreen>
-          )}
+            )}
 
-          {showResults && (
-            <ResultsView results={results} />
-          )}
+            {showWelcome && (
+              <WelcomeScreen>
+                <DropZone
+                  processFile={runChecks}
+                  isActive={true}
+                  setProgress={setProgress}
+                  handleResults={handleSingleResult}
+                  startProcessing={startProcessing}
+                  registerFileHash={registerFileHash}
+                />
+              </WelcomeScreen>
+            )}
 
-          {/* Initial Progress Bar - shown before any results */}
-          {!showResults && progress < 1.0 && <ProgressBar progress={progress} />}
+            {showResults && (
+              <ResultsView results={results} />
+            )}
 
-          {/* DropZone at bottom when showing results */}
-          {showResults && (
-            <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
+            {/* Initial Progress Bar - shown before any results */}
+            {!showResults && progress < 1.0 && <ProgressBar progress={progress} />}
+
+            {/* DropZone at bottom when showing results */}
+            {showResults && (
               <DropZone
                 ref={dropZoneRef}
                 processFile={runChecks}
@@ -235,8 +241,8 @@ function App() {
                 startProcessing={startProcessing}
                 registerFileHash={registerFileHash}
               />
-            </div>
-          )}
+            )}
+          </MainContent>
 
           <Footer isActive={showWelcome || showResults} version={LIBRARY_VERSION}/>
         </header>

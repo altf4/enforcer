@@ -33,7 +33,19 @@ const GamesContainer = styled.div`
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0 ${({ theme }) => theme.spacing.lg};
+  padding: 0 ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    max-width: 1000px;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.desktop}) {
+    max-width: 1200px;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.wide}) {
+    max-width: 1400px;
+  }
 `;
 
 const calculateStats = (results: GameDataRow[]) => {
