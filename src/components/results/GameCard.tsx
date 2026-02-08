@@ -104,12 +104,25 @@ const ExpandButton = styled.button`
 `;
 
 const DetailsContainer = styled.div<{ $isExpanded: boolean }>`
-  max-height: ${({ $isExpanded }) => ($isExpanded ? '5000px' : '0')};
-  overflow: hidden;
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '60vh' : '0')};
+  overflow-y: ${({ $isExpanded }) => ($isExpanded ? 'auto' : 'hidden')};
+  overflow-x: hidden;
   transition: max-height ${({ theme }) => theme.transitions.slow};
   background: ${({ theme }) => theme.colors.background.primary};
   border-top: ${({ $isExpanded, theme }) =>
     $isExpanded ? `1px solid ${theme.colors.border}` : 'none'};
+  scroll-behavior: smooth;
+
+  /* Mobile: increase max-height for vertical viewports */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    max-height: ${({ $isExpanded }) => ($isExpanded ? '70vh' : '0')};
+    -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+  }
+
+  /* Tablet: balanced height */
+  @media (min-width: ${({ theme }) => theme.breakpoints.mobile}) and (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    max-height: ${({ $isExpanded }) => ($isExpanded ? '65vh' : '0')};
+  }
 `;
 
 const DetailsContent = styled.div`
