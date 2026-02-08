@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import { GlobalStyles } from './styles/GlobalStyles';
 import './App.css';
-import { DropZone } from './DropZone'
+import { DropZone, DropZoneHandle } from './DropZone'
 import { CheckDataRow, GameDataRow, ViolationsDataRow } from './ResultsTable'
 import { ProgressBar } from './ProgressBar'
 import { Footer } from './Footer';
@@ -22,6 +22,7 @@ function App() {
   const [progress, setProgress] = React.useState<number>(1)
   const [totalFileCount, setTotalFileCount] = React.useState<number>(0)
   const [processedFileCount, setProcessedFileCount] = React.useState<number>(0)
+  const dropZoneRef = React.useRef<DropZoneHandle>(null)
 
   function handleSingleResult(newResult: GameDataRow) {
     updateResults(oldList => [...oldList, newResult])
@@ -170,8 +171,8 @@ function App() {
   const showResults = results.length > 0;
   const isProcessing = progress < 1.0 && results.length > 0;
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const triggerFileUpload = () => {
+    dropZoneRef.current?.openFilePicker();
   };
 
   return (
@@ -202,7 +203,7 @@ function App() {
           )}
 
           {showResults && (
-            <ResultsView results={results} onUploadMore={scrollToTop} />
+            <ResultsView results={results} onUploadMore={triggerFileUpload} />
           )}
 
           {/* Initial Progress Bar - shown before any results */}
@@ -212,6 +213,7 @@ function App() {
           {showResults && (
             <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
               <DropZone
+                ref={dropZoneRef}
                 processFile={runChecks}
                 isActive={true}
                 setProgress={setProgress}

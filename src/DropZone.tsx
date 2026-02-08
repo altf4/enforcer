@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import styled, { keyframes } from 'styled-components';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
@@ -121,7 +121,11 @@ const SecondaryText = styled.p`
   text-align: center;
 `;
 
-export function DropZone(props: any) {
+export interface DropZoneHandle {
+  openFilePicker: () => void;
+}
+
+export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // Notify App that we're starting to process files
@@ -150,8 +154,15 @@ export function DropZone(props: any) {
     [props]
   );
 
-  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject, isDragActive } =
+  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject, isDragActive, open } =
     useDropzone({ onDrop });
+
+  // Expose the open method to parent components via ref
+  useImperativeHandle(ref, () => ({
+    openFilePicker: () => {
+      open();
+    }
+  }));
 
   if (!props.isActive) {
     return null;
@@ -175,4 +186,4 @@ export function DropZone(props: any) {
       <SecondaryText>Batch processing supported - upload multiple files at once</SecondaryText>
     </Container>
   );
-}
+});
