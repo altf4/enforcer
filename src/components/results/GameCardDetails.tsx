@@ -116,7 +116,7 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
           ))
         ) : (
           <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#10b981', padding: '24px' }}>
-            🎉 All players passed all checks! No violations detected.
+            No violations detected.
           </p>
         )}
       </Section>
