@@ -207,7 +207,9 @@ function App() {
           )}
 
           {showResults && (
-            <ResultsView results={results} />
+            <ResultsView results={results} onUploadMore={function (): void {
+              throw new Error('Function not implemented.');
+            } } />
           )}
 
           {/* Initial Progress Bar - shown before any results */}
