@@ -58,22 +58,19 @@ const Filename = styled.h3`
 
 const PlayersGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: ${({ theme }) => theme.spacing.sm};
   padding-top: ${({ theme }) => theme.spacing.sm};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-  }
 `;
 
-const PlayerSlot = styled.div`
+const PlayerSlot = styled.div<{ $portIndex?: number }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs};
   font-size: ${({ theme }) => theme.typography.sizes.small};
   color: ${({ theme }) => theme.colors.text.secondary};
+  ${({ $portIndex }) => $portIndex !== undefined && `grid-column: ${$portIndex + 1};`}
 `;
 
 const PlayerLabel = styled.span`
@@ -120,7 +117,7 @@ export const GameCardHeader: React.FC<GameCardHeaderProps> = ({
           if (!result || result === '') return null;
 
           return (
-            <PlayerSlot key={index}>
+            <PlayerSlot key={index} $portIndex={index}>
               <PlayerLabel>P{index + 1}:</PlayerLabel>
               <ResultIcons
                 characterId={characterIds[index]}
