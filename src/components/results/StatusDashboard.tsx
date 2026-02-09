@@ -24,14 +24,6 @@ const DashboardContainer = styled.div`
   animation: ${fadeInDown} 0.4s ease-out;
 `;
 
-const Title = styled.h2`
-  font-size: ${({ theme }) => theme.typography.sizes.h2};
-  font-weight: ${({ theme }) => theme.typography.weights.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
-  text-align: center;
-`;
-
 const StatsGrid = styled.div`
   display: flex;
   justify-content: center;

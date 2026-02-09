@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { CheckDataRow } from '../../ResultsTable';
 import { CheckList } from '../checks/CheckList';
 import { PlayerCheckSection } from '../checks/PlayerCheckSection';
-import { VisualizationCard } from '../checks/VisualizationCard';
 import { CoordMap } from '../../CoordMap';
 
 interface GameCardDetailsProps {
