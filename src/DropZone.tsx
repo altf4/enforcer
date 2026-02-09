@@ -1,6 +1,6 @@
 import React, { useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { shake } from './styles/animations';
 import { computeFileHash } from './utils/fileHash';
@@ -24,12 +24,10 @@ const getBorderStyle = (isDragActive: boolean) => {
 
 const pulseAnimation = keyframes`
   0%, 100% {
-    opacity: 0.4;
-    transform: scale(1);
+    opacity: 0.7;
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.02);
+    opacity: 1;
   }
 `;
 
@@ -65,20 +63,19 @@ const Container = styled.div<ContainerProps>`
 
   ${({ $isDragActive }) =>
     $isDragActive &&
-    `
-    animation: ${pulseAnimation} 1.5s ease-in-out infinite;
-  `}
+    css`
+      animation: ${pulseAnimation} 1.5s ease-in-out infinite;
+    `}
 
   ${({ $isDragReject }) =>
     $isDragReject &&
-    `
-    animation: ${shake} 0.5s ease-in-out;
-  `}
+    css`
+      animation: ${shake} 0.5s ease-in-out;
+    `}
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.accent.primary};
     background: ${({ theme }) => theme.colors.background.elevated};
-    transform: translateY(-2px);
     box-shadow: ${({ theme }) => theme.shadows.medium};
   }
 
