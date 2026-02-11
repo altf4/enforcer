@@ -8584,8 +8584,10 @@ slash@^4.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-4.0.0.tgz"
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
-"slp-enforcer@file:../libenforcer":
-  version "2.0.2"
+slp-enforcer@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/slp-enforcer/-/slp-enforcer-2.1.0.tgz#fb1473e99bf258852ef83e36ff1738f345ae4dcd"
+  integrity sha512-fJB+hAHtBh5ri7GmV/uJ8Ez8KJIN2bEnPSDnuIs62htWUMASgfGML2/udHb0o5TW2bB6sgIwuUFuHRGMt6UqHw==
 
 sockjs@^0.3.24:
   version "0.3.24"
