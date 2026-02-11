@@ -159,8 +159,8 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
         props.handleResults(result);
       };
 
-      // Process in batches of 4 for balanced throughput + steady progress
-      const BATCH_SIZE = 4;
+      // Process in batches for balanced throughput + steady progress
+      const BATCH_SIZE = 10;
       for (let i = 0; i < totalFiles; i += BATCH_SIZE) {
         const batch = acceptedFiles.slice(i, i + BATCH_SIZE);
         await Promise.all(batch.map(processOneFile));
