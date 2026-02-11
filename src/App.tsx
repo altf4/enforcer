@@ -12,7 +12,7 @@ import { Header } from './components/layout/Header';
 import { WelcomeScreen } from './components/welcome/WelcomeScreen';
 import { ResultsView } from './components/results/ResultsView';
 import { StickyProgressBar } from './components/shared/StickyProgressBar';
-import init, { ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
+import init, { analyzeReplay, AllCheckResults, isBoxController, Violation } from 'slp-enforcer'
 import { isHandwarmer, isSlpMinVersion, getGameSettings } from 'slp-enforcer'
 
 const MainContent = styled.div`
@@ -22,6 +22,16 @@ const MainContent = styled.div`
 `;
 
 let LIBRARY_VERSION: string = "2.0.1"
+
+const CHECK_MAPPING: { key: keyof AllCheckResults; name: string }[] = [
+  { key: 'travel_time', name: 'Box Travel Time' },
+  { key: 'disallowed_cstick', name: 'Disallowed Analog C-Stick Values' },
+  { key: 'uptilt_rounding', name: 'Uptilt Rounding' },
+  { key: 'crouch_uptilt', name: 'Fast Crouch Uptilt' },
+  { key: 'sdi', name: 'Illegal SDI' },
+  { key: 'goomwave', name: 'GoomWave Clamping' },
+  { key: 'control_stick_viz', name: 'Control Stick Visualization' },
+]
 
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
@@ -120,43 +130,46 @@ function App() {
         playerPassed[i] = "⦻"
       }
     } else {
+      // Remove shadowing of 'passed' and update it safely
+      let failed = false;
 
-      let checks: Check[]
-      checks = ListChecks()
+      const checkResultsMap: CheckDataRow[] = CHECK_MAPPING.map(({ name }) => ({
+        name,
+        passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"],
+        violations: [[], [], [], []]
+      }))
 
-      for (let check of checks) {
-        let checkResult: CheckDataRow = {
-          name: check.name,
-          passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"],
-          violations: [[], [], [], []]
+      for (let i = 0; i < 4; i++) {
+        if (!ports.includes(i)) {
+          for (const cr of checkResultsMap) { cr.passed[i] = "" }
+          playerPassed[i] = ""
+          continue
         }
-        for (let i = 0; i < 4; i++) {
-          if (!ports.includes(i)) {
-            checkResult.passed[i] = ""
-            playerPassed[i] = ""
-            continue
-          }
 
-          if (isBoxController(slpBytes, i)) {
-            controllerType[i] = "digital"
-          } else {
-            controllerType[i] = "analog"
-          }
+        controllerType[i] = isBoxController(slpBytes, i) ? "digital" : "analog"
 
-          let singleCheckResults = check.checkFunction(slpBytes, i)
-          if (singleCheckResults.result) {
-            checkResult.passed[i] = "❌"
-            playerPassed[i] = "❌"
-            passed = "❌ Failed"
-            checkResult.violations[i] = violationArrayToDataRows(singleCheckResults.violations, check.name)
+        const allResults: AllCheckResults = analyzeReplay(slpBytes, i)
+
+        for (let idx = 0; idx < CHECK_MAPPING.length; idx++) {
+          const { key, name } = CHECK_MAPPING[idx];
+          const result = allResults[key];
+          const cr = checkResultsMap[idx];
+
+          if (result.result) {
+            cr.passed[i] = "❌";
+            playerPassed[i] = "❌";
+            failed = true;
+            cr.violations[i] = violationArrayToDataRows(result.violations, name);
           }
-          if (check.name === "Control Stick Visualization"){
-            checkResult.passed[i] = "✅"
-            checkResult.violations[i] = violationArrayToDataRows(singleCheckResults.violations, check.name)
+          if (name === "Control Stick Visualization") {
+            cr.passed[i] = "✅";
+            cr.violations[i] = violationArrayToDataRows(result.violations, name);
           }
         }
-        checkResults.push(checkResult)
       }
+
+      passed = failed ? "❌ Failed" : "✅ Passed";
+      checkResults = checkResultsMap
     }
 
     let ourStage: number = settings.stageId ?? -1
