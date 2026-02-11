@@ -1,7 +1,10 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StatusDashboard } from './StatusDashboard';
 import { GameCard } from './GameCard';
+import { CheckTogglePanel } from './CheckTogglePanel';
+import { CHECK_NAMES } from '../../constants/checks';
+import { CheckDataRow } from '../../ResultsTable';
 
 interface GameDataRow {
   filename: string;
@@ -48,23 +51,40 @@ const GamesContainer = styled.div`
   }
 `;
 
-const calculateStats = (results: GameDataRow[]) => {
-  let passed = 0;
-  let failed = 0;
-  let special = 0;
+function deriveGameData(
+  game: GameDataRow,
+  enabledChecks: Record<string, boolean>
+): { effectiveOverallResult: string; effectivePlayerResults: string[]; filteredDetails: CheckDataRow[] } {
+  // Special games (handwarmer, too old, parse error) have no details — leave unchanged
+  if (!game.details || game.details.length === 0) {
+    return {
+      effectiveOverallResult: game.overallResult,
+      effectivePlayerResults: game.results,
+      filteredDetails: [],
+    };
+  }
 
-  results.forEach((game) => {
-    if (game.overallResult.includes('Passed') || game.overallResult.includes('✅')) {
-      passed++;
-    } else if (game.overallResult.includes('Failed') || game.overallResult.includes('❌')) {
-      failed++;
-    } else {
-      special++;
-    }
+  const filteredDetails = game.details.filter(
+    (check: CheckDataRow) => check.name === 'Control Stick Visualization' || enabledChecks[check.name] !== false
+  );
+
+  const effectivePlayerResults = game.results.map((originalResult, i) => {
+    // Preserve non-active port markers
+    if (originalResult === '' || originalResult === '⦻') return originalResult;
+
+    const anyFailed = filteredDetails.some((check: CheckDataRow) => {
+      if (check.name === 'Control Stick Visualization') return false;
+      return check.passed[i].includes('❌');
+    });
+    return anyFailed ? '❌' : '✅';
   });
 
-  return { passed, failed, special };
-};
+  const activePorts = effectivePlayerResults.filter(r => r !== '' && r !== '⦻');
+  const anyPlayerFailed = activePorts.some(r => r.includes('❌'));
+  const effectiveOverallResult = anyPlayerFailed ? '❌ Failed' : '✅ Passed';
+
+  return { effectiveOverallResult, effectivePlayerResults, filteredDetails };
+}
 
 const getResultCategory = (result: string): 'passed' | 'failed' | 'special' => {
   if (result.includes('Passed') || result.includes('✅')) return 'passed';
@@ -80,7 +100,48 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
     special: false,
   });
 
-  const stats = calculateStats(results);
+  const [enabledChecks, setEnabledChecks] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    CHECK_NAMES.forEach(name => { initial[name] = true; });
+    return initial;
+  });
+
+  const toggleCheck = (checkName: string) => {
+    setEnabledChecks(prev => ({ ...prev, [checkName]: !prev[checkName] }));
+  };
+
+  const enableAllChecks = () => {
+    const all: Record<string, boolean> = {};
+    CHECK_NAMES.forEach(name => { all[name] = true; });
+    setEnabledChecks(all);
+  };
+
+  const disableAllChecks = () => {
+    const none: Record<string, boolean> = {};
+    CHECK_NAMES.forEach(name => { none[name] = false; });
+    setEnabledChecks(none);
+  };
+
+  // Derive effective results based on enabled checks
+  const derivedResults = useMemo(() =>
+    results.map(game => {
+      const derived = deriveGameData(game, enabledChecks);
+      return { ...game, ...derived };
+    }),
+    [results, enabledChecks]
+  );
+
+  // Calculate stats from derived results
+  const stats = useMemo(() => {
+    let passed = 0, failed = 0, special = 0;
+    derivedResults.forEach(game => {
+      const category = getResultCategory(game.effectiveOverallResult);
+      if (category === 'passed') passed++;
+      else if (category === 'failed') failed++;
+      else special++;
+    });
+    return { passed, failed, special };
+  }, [derivedResults]);
 
   const toggleVisibility = (category: keyof VisibilityState) => {
     setVisibility(prev => ({
@@ -90,8 +151,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
   };
 
   // Filter results based on visibility state
-  const filteredResults = results.filter(game => {
-    const category = getResultCategory(game.overallResult);
+  const filteredResults = derivedResults.filter(game => {
+    const category = getResultCategory(game.effectiveOverallResult);
     return visibility[category];
   });
 
@@ -106,18 +167,25 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
         onToggleVisibility={toggleVisibility}
       />
 
+      <CheckTogglePanel
+        enabledChecks={enabledChecks}
+        onToggleCheck={toggleCheck}
+        onEnableAll={enableAllChecks}
+        onDisableAll={disableAllChecks}
+      />
+
       <GamesContainer>
         {filteredResults.map((game, index) => (
           <GameCard
             key={`${game.filename}-${index}`}
             filename={game.filename}
             stage={game.stage}
-            overallResult={game.overallResult}
-            results={game.results}
+            overallResult={game.effectiveOverallResult}
+            results={game.effectivePlayerResults}
             controllerTypes={game.controllerTypes}
             characterIds={game.characterIds}
             costumes={game.costumes}
-            details={game.details}
+            details={game.filteredDetails}
             $delay={index * 50}
           />
         ))}
