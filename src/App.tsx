@@ -14,14 +14,13 @@ import { ResultsView } from './components/results/ResultsView';
 import { StickyProgressBar } from './components/shared/StickyProgressBar';
 import init, { analyzeReplay, AllCheckResults, isBoxController, Violation } from 'slp-enforcer'
 import { isHandwarmer, isSlpMinVersion, getGameSettings } from 'slp-enforcer'
+import { version as LIBRARY_VERSION } from 'slp-enforcer/package.json'
 
 const MainContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
 `;
-
-let LIBRARY_VERSION: string = "2.0.1"
 
 const CHECK_MAPPING: { key: keyof AllCheckResults; name: string }[] = [
   { key: 'travel_time', name: 'Box Travel Time' },
