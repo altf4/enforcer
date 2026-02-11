@@ -14,7 +14,8 @@ import { ResultsView } from './components/results/ResultsView';
 import { StickyProgressBar } from './components/shared/StickyProgressBar';
 import init, { analyzeReplay, AllCheckResults, isBoxController, Violation } from 'slp-enforcer'
 import { isHandwarmer, isSlpMinVersion, getGameSettings } from 'slp-enforcer'
-import { version as LIBRARY_VERSION } from 'slp-enforcer/package.json'
+import packageJson from '../package.json'
+const LIBRARY_VERSION = packageJson.dependencies['slp-enforcer']
 
 const MainContent = styled.div`
   flex: 1;
