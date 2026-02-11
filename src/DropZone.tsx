@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import styled, { css, keyframes } from 'styled-components';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { shake } from './styles/animations';
-import { computeFileHashFromBuffer } from './utils/fileHash';
+
 
 const getColor = (isDragAccept: boolean, isDragReject: boolean, isFocused: boolean, theme: any) => {
   if (isDragAccept) {
@@ -137,22 +137,19 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
       }
 
       // Track within-batch duplicates locally (React state updates
-      // from registerFileHash won't be visible within this callback)
-      const batchSeenHashes = new Set<string>();
+      // from registerFilename won't be visible within this callback)
+      const batchSeenFilenames = new Set<string>();
       let completedCount = 0;
 
-      // Process a single file: read once, hash, dedup, then run checks
       const processOneFile = async (file: File) => {
-        const buffer = await file.arrayBuffer();
-        const hash = computeFileHashFromBuffer(buffer);
-
-        if (batchSeenHashes.has(hash) || !props.registerFileHash(hash)) {
+        if (batchSeenFilenames.has(file.name) || !props.registerFilename(file.name)) {
           completedCount += 1;
           props.setProgress(completedCount / totalFiles);
           return;
         }
-        batchSeenHashes.add(hash);
+        batchSeenFilenames.add(file.name);
 
+        const buffer = await file.arrayBuffer();
         const result = await props.processFile(file, buffer);
         completedCount += 1;
         props.setProgress(completedCount / totalFiles);
@@ -160,7 +157,7 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
       };
 
       // Process in batches for balanced throughput + steady progress
-      const BATCH_SIZE = 10;
+      const BATCH_SIZE = 25;
       for (let i = 0; i < totalFiles; i += BATCH_SIZE) {
         const batch = acceptedFiles.slice(i, i + BATCH_SIZE);
         await Promise.all(batch.map(processOneFile));

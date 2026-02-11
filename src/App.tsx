@@ -38,7 +38,7 @@ function App() {
   const [progress, setProgress] = React.useState<number>(1)
   const [totalFileCount, setTotalFileCount] = React.useState<number>(0)
   const [processedFileCount, setProcessedFileCount] = React.useState<number>(0)
-  const [uploadedFileHashes, setUploadedFileHashes] = React.useState<Set<string>>(new Set())
+  const [uploadedFilenames, setUploadedFilenames] = React.useState<Set<string>>(new Set())
   const dropZoneRef = React.useRef<DropZoneHandle>(null)
 
   function handleSingleResult(newResult: GameDataRow) {
@@ -52,11 +52,11 @@ function App() {
     setProgress(0)
   }
 
-  function registerFileHash(hash: string): boolean {
-    if (uploadedFileHashes.has(hash)) {
+  function registerFilename(filename: string): boolean {
+    if (uploadedFilenames.has(filename)) {
       return false; // Duplicate detected
     }
-    setUploadedFileHashes(prev => new Set([...prev, hash]));
+    setUploadedFilenames(prev => new Set([...prev, filename]));
     return true; // New file, proceed with processing
   }
 
@@ -224,7 +224,7 @@ function App() {
                   setProgress={setProgress}
                   handleResults={handleSingleResult}
                   startProcessing={startProcessing}
-                  registerFileHash={registerFileHash}
+                  registerFilename={registerFilename}
                 />
               </WelcomeScreen>
             )}
@@ -245,7 +245,7 @@ function App() {
                 setProgress={setProgress}
                 handleResults={handleSingleResult}
                 startProcessing={startProcessing}
-                registerFileHash={registerFileHash}
+                registerFilename={registerFilename}
               />
             )}
           </MainContent>
