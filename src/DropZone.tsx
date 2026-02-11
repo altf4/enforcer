@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import styled, { css, keyframes } from 'styled-components';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { shake } from './styles/animations';
-import { computeFileHash } from './utils/fileHash';
+import { computeFileHashFromBuffer } from './utils/fileHash';
 
 const getColor = (isDragAccept: boolean, isDragReject: boolean, isFocused: boolean, theme: any) => {
   if (isDragAccept) {
@@ -126,42 +126,46 @@ export interface DropZoneHandle {
 export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // Step 1: Compute hashes for all files in parallel
-      const filesWithHashes = await Promise.all(
-        acceptedFiles.map(async (file) => ({
-          file,
-          hash: await computeFileHash(file)
-        }))
-      );
-
-      // Step 2: Filter out duplicates using registerFileHash
-      const uniqueFiles = filesWithHashes.filter(({ hash }) =>
-        props.registerFileHash(hash)
-      );
-
-      // If all files are duplicates, exit early
-      if (uniqueFiles.length === 0) {
+      if (acceptedFiles.length === 0) {
         return;
       }
 
-      // Step 3: Start processing with unique file count
+      // Show progress bar immediately
+      const totalFiles = acceptedFiles.length;
       if (props.startProcessing) {
-        props.startProcessing(uniqueFiles.length);
+        props.startProcessing(totalFiles);
       }
 
-      // Step 4: Process only unique files
-      let count = 0;
-      const promises: Promise<any>[] = uniqueFiles.map(({ file }) => {
-        const process = props.processFile(file);
-        process.then((result: any) => {
-          count += 1;
-          props.setProgress(count / uniqueFiles.length);
-          props.handleResults(result);
-        });
-        return process;
-      });
+      // Track within-batch duplicates locally (React state updates
+      // from registerFileHash won't be visible within this callback)
+      const batchSeenHashes = new Set<string>();
+      let completedCount = 0;
 
-      await Promise.all(promises);
+      // Process a single file: read once, hash, dedup, then run checks
+      const processOneFile = async (file: File) => {
+        const buffer = await file.arrayBuffer();
+        const hash = computeFileHashFromBuffer(buffer);
+
+        if (batchSeenHashes.has(hash) || !props.registerFileHash(hash)) {
+          completedCount += 1;
+          props.setProgress(completedCount / totalFiles);
+          return;
+        }
+        batchSeenHashes.add(hash);
+
+        const result = await props.processFile(file, buffer);
+        completedCount += 1;
+        props.setProgress(completedCount / totalFiles);
+        props.handleResults(result);
+      };
+
+      // Process in batches of 4 for balanced throughput + steady progress
+      const BATCH_SIZE = 4;
+      for (let i = 0; i < totalFiles; i += BATCH_SIZE) {
+        const batch = acceptedFiles.slice(i, i + BATCH_SIZE);
+        await Promise.all(batch.map(processOneFile));
+      }
+
       props.setProgress(1.0);
     },
     [props]
