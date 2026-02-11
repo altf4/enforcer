@@ -8,12 +8,12 @@ export function StageIcon({ stageId }: { stageId: number}): JSX.Element {
   if (stageId === undefined) {
     return <div/>
   }
-  let stage: string = stageImages(`./${stageId}.png`);
-  return <img
-            src={stage}
-            width={48}
-            alt={String(stageId)}
-          />
+  try {
+    let stage: string = stageImages(`./${stageId}.png`);
+    return <img src={stage} width={48} alt={String(stageId)} />
+  } catch {
+    return <div/>
+  }
 }
 
 export function ControllerTypeIcon({ controllerType }: { controllerType: string}): JSX.Element {

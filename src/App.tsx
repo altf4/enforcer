@@ -12,8 +12,8 @@ import { Header } from './components/layout/Header';
 import { WelcomeScreen } from './components/welcome/WelcomeScreen';
 import { ResultsView } from './components/results/ResultsView';
 import { StickyProgressBar } from './components/shared/StickyProgressBar';
-import { getCoordListFromGame, Coord, ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
-import { SlippiGame, isHandwarmer, isSlpMinVersion } from 'slp-enforcer'
+import init, { ListChecks, Check, isBoxController, Violation } from 'slp-enforcer'
+import { isHandwarmer, isSlpMinVersion, getGameSettings } from 'slp-enforcer'
 
 const MainContent = styled.div`
   flex: 1;
@@ -21,7 +21,7 @@ const MainContent = styled.div`
   flex-direction: column;
 `;
 
-let LIBRARY_VERSION: string = "1.4.4"
+let LIBRARY_VERSION: string = "2.0.1"
 
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
@@ -63,7 +63,8 @@ function App() {
     return dataRows
   }
 
-  function runChecks(inputFile: File) {
+  async function runChecks(inputFile: File) {
+    await init()
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.onabort = () => reject('file reading was aborted')
@@ -71,7 +72,23 @@ function App() {
       reader.onload = () => {
         // Do whatever you want with the file contents
         const binaryStr = reader.result
-        const game = new SlippiGame(binaryStr as ArrayBuffer);
+        const slpBytes = new Uint8Array(binaryStr as ArrayBuffer)
+        let settings
+        try {
+          settings = getGameSettings(slpBytes)
+        } catch {
+          resolve({
+            filename: inputFile.name,
+            stage: -1,
+            overallResult: "💀 Could Not Parse",
+            results: ["⦻", "⦻", "⦻", "⦻"],
+            controllerTypes: ["?", "?", "?", "?"],
+            characterIds: [-1, -1, -1, -1],
+            costumes: [-1, -1, -1, -1],
+            details: []
+          })
+          return
+        }
 
         let passed = "✅ Passed"
         let playerPassed: string[] = []
@@ -85,30 +102,25 @@ function App() {
 
         let checkResults: CheckDataRow[] = []
 
-        const ports: number[] | undefined = game.getSettings()?.players.filter(player => player.type === 0).map((player) => player.playerIndex);
-        if (ports === undefined) {
-          return
-        }
+        const ports: number[] = settings.players.filter(p => p.playerType === 0).map(p => p.playerIndex);
 
         // Get character IDs, costumes
         for (let i = 0; i < 4; i++) {
           if (ports.includes(i)) {
-            for (let player of game.getSettings()?.players!) {
-              if (player.playerIndex === i) {
-                // Wow, that was a lot just to match these
-                characterIds[i] = player.characterId!
-                costumes[i] = player.characterColor!
-              }
+            const player = settings.players.find(p => p.playerIndex === i)
+            if (player) {
+              characterIds[i] = player.characterId
+              costumes[i] = player.characterColor
             }
           }
         }
 
-        if (isSlpMinVersion(game)) {
+        if (isSlpMinVersion(slpBytes)) {
           passed = "💀 SLP Too Old (Slippi >=3.15.0)"
           for (let i = 0; i < 4; i++) {
             playerPassed[i] = "⦻"
           }
-        } else if (isHandwarmer(game)) {
+        } else if (isHandwarmer(slpBytes)) {
           passed = "🔥 Handwarmer"
           for (let i = 0; i < 4; i++) {
             playerPassed[i] = "⦻"
@@ -131,20 +143,13 @@ function App() {
                 continue
               }
 
-              let coords: Coord[] = []
-              if (check.name === "Disallowed Analog C-Stick Values") {
-                coords = getCoordListFromGame(game, i, false)
-              } else {
-                coords = getCoordListFromGame(game, i, true)
-              }
-
-              if (isBoxController(getCoordListFromGame(game, i, true))) {
+              if (isBoxController(slpBytes, i)) {
                 controllerType[i] = "digital"
               } else {
                 controllerType[i] = "analog"
               }
 
-              let singleCheckResults = check.checkFunction(game, i, coords)
+              let singleCheckResults = check.checkFunction(slpBytes, i)
               if (singleCheckResults.result) {
                 checkResult.passed[i] = "❌"
                 playerPassed[i] = "❌"
@@ -160,10 +165,7 @@ function App() {
           }
         }
 
-        let ourStage: number = game.getSettings()?.stageId!
-        if (ourStage === undefined || ourStage === null) {
-          ourStage = -1
-        }
+        let ourStage: number = settings.stageId ?? -1
 
         let fileResult: GameDataRow = {
           filename: inputFile.name,
