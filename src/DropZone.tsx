@@ -119,6 +119,16 @@ const SecondaryText = styled.p`
   text-align: center;
 `;
 
+/**
+ * Yields to the browser so it can paint before we resume processing.
+ * rAF fires before paint; the inner setTimeout resolves after paint.
+ */
+function yieldToMain(): Promise<void> {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => setTimeout(resolve, 0));
+  });
+}
+
 export interface DropZoneHandle {
   openFilePicker: () => void;
 }
@@ -141,11 +151,14 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
       const batchSeenFilenames = new Set<string>();
       let completedCount = 0;
 
-      const processOneFile = async (file: File) => {
+      // Process files sequentially so the browser can paint between
+      // each file. analyzeReplay (WASM) is synchronous on the main
+      // thread, so concurrent scheduling provides no speedup.
+      for (const file of acceptedFiles) {
         if (batchSeenFilenames.has(file.name) || !props.registerFilename(file.name)) {
           completedCount += 1;
           props.setProgress(completedCount / totalFiles);
-          return;
+          continue;
         }
         batchSeenFilenames.add(file.name);
 
@@ -154,9 +167,11 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
         completedCount += 1;
         props.setProgress(completedCount / totalFiles);
         props.handleResults(result);
-      };
 
-      await Promise.all(acceptedFiles.map(processOneFile));
+        // Yield to the browser so it can paint updated progress
+        // and any new result cards before processing the next file
+        await yieldToMain();
+      }
 
       props.setProgress(1.0);
     },

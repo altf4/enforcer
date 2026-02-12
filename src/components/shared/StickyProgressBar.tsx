@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import styled from 'styled-components';
 import { shimmer } from '../../styles/animations';
 
@@ -85,7 +86,7 @@ const Percentage = styled.span`
   font-weight: ${({ theme }) => theme.typography.weights.bold};
 `;
 
-export const StickyProgressBar: React.FC<StickyProgressBarProps> = ({
+export const StickyProgressBar = memo<StickyProgressBarProps>(({
   progress,
   currentFile,
   totalFiles,
@@ -105,4 +106,4 @@ export const StickyProgressBar: React.FC<StickyProgressBarProps> = ({
       </ProgressContent>
     </StickyContainer>
   );
-};
+});

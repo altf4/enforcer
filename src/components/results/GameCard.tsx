@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { fadeInUp } from '../../styles/animations';
 import { GameCardHeader } from './GameCardHeader';
@@ -129,7 +129,7 @@ const DetailsContent = styled.div`
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
-export const GameCard: React.FC<GameCardProps> = ({
+export const GameCard = memo<GameCardProps>(({
   filename,
   stage,
   overallResult,
@@ -212,4 +212,4 @@ export const GameCard: React.FC<GameCardProps> = ({
       </DetailsContainer>
     </CardContainer>
   );
-};
+});

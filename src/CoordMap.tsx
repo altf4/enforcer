@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
 import { Coord } from 'slp-enforcer'
 
@@ -54,7 +54,7 @@ const CoordCount = styled.div`
     font-weight: ${({ theme }) => theme.typography.weights.medium};
 `
 
-export function CoordMap(props: CoordMapProps) {
+export const CoordMap = memo(function CoordMap(props: CoordMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
     useEffect(() => {
@@ -123,7 +123,7 @@ export function CoordMap(props: CoordMapProps) {
             context.arc((coord.x * radius) + radius, (coord.y * -radius) + radius, dotSize, 0, 2 * Math.PI)
             context.fill()
         }
-    })
+    }, [props.coords, props.showZones])
 
     return (
         <Container>
@@ -147,4 +147,4 @@ export function CoordMap(props: CoordMapProps) {
             )}
         </Container>
     )
-}
+})

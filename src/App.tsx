@@ -33,47 +33,80 @@ const CHECK_MAPPING: { key: keyof AllCheckResults; name: string }[] = [
   { key: 'control_stick_viz', name: 'Control Stick Visualization' },
 ]
 
+function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {
+  let dataRows: ViolationsDataRow[] = []
+  for (let violation of violations) {
+    let newRow: ViolationsDataRow = {checkName: checkName,
+      metric: violation.metric,
+      reason: violation.reason,
+      evidence: violation.evidence
+    }
+    dataRows.push(newRow)
+  }
+  return dataRows
+}
+
 function App() {
   const [results, updateResults] = React.useState<GameDataRow[]>([])
   const [progress, setProgress] = React.useState<number>(1)
   const [totalFileCount, setTotalFileCount] = React.useState<number>(0)
   const [processedFileCount, setProcessedFileCount] = React.useState<number>(0)
-  const [uploadedFilenames, setUploadedFilenames] = React.useState<Set<string>>(new Set())
   const dropZoneRef = React.useRef<DropZoneHandle>(null)
 
-  function handleSingleResult(newResult: GameDataRow) {
-    updateResults(oldList => [...oldList, newResult])
-    setProcessedFileCount(prev => prev + 1)
-  }
+  // Ref for synchronous duplicate checking (avoids stale closure issues)
+  const uploadedFilenamesRef = React.useRef<Set<string>>(new Set())
 
-  function startProcessing(fileCount: number) {
+  // Accumulate results and flush them in batches to reduce re-renders
+  const pendingResults = React.useRef<GameDataRow[]>([])
+  const flushTimerRef = React.useRef<number | null>(null)
+
+  const flushPendingResults = React.useCallback(() => {
+    if (pendingResults.current.length === 0) return
+    const batch = pendingResults.current
+    pendingResults.current = []
+    flushTimerRef.current = null
+
+    updateResults(oldList => [...oldList, ...batch])
+    setProcessedFileCount(prev => prev + batch.length)
+  }, [])
+
+  // Flush any remaining results when processing completes
+  React.useEffect(() => {
+    if (progress >= 1.0 && pendingResults.current.length > 0) {
+      if (flushTimerRef.current !== null) {
+        cancelAnimationFrame(flushTimerRef.current)
+      }
+      flushPendingResults()
+    }
+  }, [progress, flushPendingResults])
+
+  const handleSingleResult = React.useCallback((newResult: GameDataRow) => {
+    pendingResults.current.push(newResult)
+
+    // Schedule a flush on the next animation frame if one isn't already pending.
+    // This batches results that arrive within the same frame.
+    if (flushTimerRef.current === null) {
+      flushTimerRef.current = requestAnimationFrame(() => {
+        flushPendingResults()
+      })
+    }
+  }, [flushPendingResults])
+
+  const startProcessing = React.useCallback((fileCount: number) => {
     setTotalFileCount(fileCount)
     setProcessedFileCount(0)
     setProgress(0)
-  }
+  }, [])
 
-  function registerFilename(filename: string): boolean {
-    if (uploadedFilenames.has(filename)) {
-      return false; // Duplicate detected
+  const registerFilename = React.useCallback((filename: string): boolean => {
+    if (uploadedFilenamesRef.current.has(filename)) {
+      return false
     }
-    setUploadedFilenames(prev => new Set([...prev, filename]));
-    return true; // New file, proceed with processing
-  }
+    uploadedFilenamesRef.current.add(filename)
+    return true
+  }, [])
 
-  function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {
-    let dataRows: ViolationsDataRow[] = [] 
-    for (let violation of violations) {
-      let newRow: ViolationsDataRow = {checkName: checkName, 
-        metric: violation.metric, 
-        reason: violation.reason,
-        evidence: violation.evidence
-      }
-      dataRows.push(newRow)
-    }
-    return dataRows
-  }
-
-  async function runChecks(inputFile: File, preReadBuffer?: ArrayBuffer) {
+  const runChecks = React.useCallback(async function runChecks(inputFile: File, preReadBuffer?: ArrayBuffer) {
     await init()
     const buffer = preReadBuffer ?? await inputFile.arrayBuffer()
     const slpBytes = new Uint8Array(buffer)
@@ -186,7 +219,7 @@ function App() {
     }
 
     return fileResult
-  }
+  }, [])
 
   const showWelcome = results.length === 0 && progress >= 1.0;
   const showResults = results.length > 0;

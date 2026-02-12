@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
 
 export type CoordProps = {
@@ -36,7 +36,7 @@ const Coordinates = styled.div`
     font-family: ${({ theme }) => theme.typography.fonts.mono};
 `
 
-export function CoordElement(props: CoordProps) {
+export const CoordElement = memo(function CoordElement(props: CoordProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
     useEffect(() => {
@@ -85,7 +85,7 @@ export function CoordElement(props: CoordProps) {
         context.shadowColor = "#ef4444"
         context.fill()
         context.shadowBlur = 0
-    })
+    }, [props.x, props.y])
 
     return (
         <Container>
@@ -94,4 +94,4 @@ export function CoordElement(props: CoordProps) {
             <Coordinates>({props.x.toFixed(3)}, {props.y.toFixed(3)})</Coordinates>
         </Container>
     )
-}
+})
