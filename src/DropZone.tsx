@@ -119,16 +119,6 @@ const SecondaryText = styled.p`
   text-align: center;
 `;
 
-/**
- * Yields to the browser so it can paint before we resume processing.
- * rAF fires before paint; the inner setTimeout resolves after paint.
- */
-function yieldToMain(): Promise<void> {
-  return new Promise(resolve => {
-    requestAnimationFrame(() => setTimeout(resolve, 0));
-  });
-}
-
 export interface DropZoneHandle {
   openFilePicker: () => void;
 }
@@ -151,9 +141,11 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
       const batchSeenFilenames = new Set<string>();
       let completedCount = 0;
 
-      // Process files sequentially so the browser can paint between
-      // each file. analyzeReplay (WASM) is synchronous on the main
-      // thread, so concurrent scheduling provides no speedup.
+      // Collect non-duplicate files, then dispatch all to the worker
+      // pool in parallel. Each worker runs its own WASM instance on a
+      // separate thread, so N workers ≈ Nx throughput.
+      const filesToProcess: Array<{ file: File; buffer: ArrayBuffer }> = [];
+
       for (const file of acceptedFiles) {
         if (batchSeenFilenames.has(file.name) || !props.registerFilename(file.name)) {
           completedCount += 1;
@@ -161,18 +153,20 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
           continue;
         }
         batchSeenFilenames.add(file.name);
-
-        const buffer = await file.arrayBuffer();
-        const result = await props.processFile(file, buffer);
-        completedCount += 1;
-        props.setProgress(completedCount / totalFiles);
-        props.handleResults(result);
-
-        // Yield to the browser so it can paint updated progress
-        // and any new result cards before processing the next file
-        await yieldToMain();
+        filesToProcess.push({ file, buffer: await file.arrayBuffer() });
       }
 
+      // Dispatch all files to workers. Results stream back as each
+      // file completes — the main thread stays responsive.
+      const promises = filesToProcess.map(({ file, buffer }) =>
+        props.processFile(file, buffer).then((result: any) => {
+          completedCount += 1;
+          props.setProgress(completedCount / totalFiles);
+          props.handleResults(result);
+        })
+      );
+
+      await Promise.all(promises);
       props.setProgress(1.0);
     },
     [props]

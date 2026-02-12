@@ -19,6 +19,16 @@ jest.mock('slp-enforcer', () => ({
   getGameSettings: jest.fn(),
 }));
 
+// Mock WorkerPool (Jest does not support import.meta.url)
+jest.mock('./WorkerPool', () => {
+  class MockWorkerPool {
+    initialize() { return Promise.resolve() }
+    submitTask() {}
+    destroy() {}
+  }
+  return { WorkerPool: MockWorkerPool }
+});
+
 // eslint-disable-next-line import/first
 import App from './App';
 

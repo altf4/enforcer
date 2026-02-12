@@ -14,5 +14,16 @@ module.exports = function override(config) {
     url: false,
     path: false,
   };
+
+  // Ensure .wasm files are handled as assets so webpack resolves URLs
+  // correctly in both the main bundle and worker bundles
+  const oneOfRule = config.module.rules.find(rule => rule.oneOf);
+  if (oneOfRule) {
+    oneOfRule.oneOf.unshift({
+      test: /\.wasm$/,
+      type: 'asset/resource',
+    });
+  }
+
   return config;
 };
