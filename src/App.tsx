@@ -190,7 +190,7 @@ function App() {
             )}
           </MainContent>
 
-          <Footer isActive={showWelcome || showResults} version={LIBRARY_VERSION}/>
+          <Footer isActive={showWelcome || showResults} version={LIBRARY_VERSION} commitHash={process.env.REACT_APP_GIT_HASH || 'unknown'}/>
         </header>
       </div>
     </ThemeProvider>

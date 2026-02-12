@@ -40,9 +40,10 @@ const FooterLink = styled.a`
 interface FooterProps {
   isActive: boolean;
   version: string;
+  commitHash: string;
 }
 
-export function Footer({ isActive, version }: FooterProps): JSX.Element | null {
+export function Footer({ isActive, version, commitHash }: FooterProps): JSX.Element | null {
   if (!isActive) {
     return null;
   }
@@ -50,7 +51,7 @@ export function Footer({ isActive, version }: FooterProps): JSX.Element | null {
   return (
     <FooterContainer>
       <FooterText>
-        SLP Enforcer v{version} — Made by AltF4
+        SLP Enforcer v{version} (UI v{commitHash}) — Made by AltF4
         <AwesomeIcon src={awesome} alt="awesome" />
       </FooterText>
       <FooterText>
