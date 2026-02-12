@@ -130,41 +130,50 @@ export const DropZone = forwardRef<DropZoneHandle, any>((props, ref) => {
         return;
       }
 
-      // Show progress bar immediately
       const totalFiles = acceptedFiles.length;
       if (props.startProcessing) {
         props.startProcessing(totalFiles);
       }
 
-      // Track within-batch duplicates locally (React state updates
-      // from registerFilename won't be visible within this callback)
+      // Yield so React can paint the progress bar at 0% before we
+      // start reading files. Without this, the sequential await chain
+      // below blocks the browser's rendering pipeline.
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       const batchSeenFilenames = new Set<string>();
-      let completedCount = 0;
+      const completed = { count: 0 };
+      const promises: Promise<void>[] = [];
+      const YIELD_INTERVAL = 8;
 
-      // Collect non-duplicate files, then dispatch all to the worker
-      // pool in parallel. Each worker runs its own WASM instance on a
-      // separate thread, so N workers ≈ Nx throughput.
-      const filesToProcess: Array<{ file: File; buffer: ArrayBuffer }> = [];
+      const onFileComplete = (result: any) => {
+        completed.count += 1;
+        props.setProgress(completed.count / totalFiles);
+        props.handleResults(result);
+      };
 
-      for (const file of acceptedFiles) {
+      for (let i = 0; i < acceptedFiles.length; i++) {
+        const file = acceptedFiles[i];
+
         if (batchSeenFilenames.has(file.name) || !props.registerFilename(file.name)) {
-          completedCount += 1;
-          props.setProgress(completedCount / totalFiles);
+          completed.count += 1;
+          props.setProgress(completed.count / totalFiles);
           continue;
         }
         batchSeenFilenames.add(file.name);
-        filesToProcess.push({ file, buffer: await file.arrayBuffer() });
-      }
 
-      // Dispatch all files to workers. Results stream back as each
-      // file completes — the main thread stays responsive.
-      const promises = filesToProcess.map(({ file, buffer }) =>
-        props.processFile(file, buffer).then((result: any) => {
-          completedCount += 1;
-          props.setProgress(completedCount / totalFiles);
-          props.handleResults(result);
-        })
-      );
+        // Read buffer and dispatch to worker immediately — workers
+        // start processing while we're still reading remaining files.
+        const buffer = await file.arrayBuffer();
+        promises.push(
+          props.processFile(file, buffer).then(onFileComplete)
+        );
+
+        // Yield periodically so the browser can process worker
+        // completion callbacks and paint progress updates.
+        if ((i + 1) % YIELD_INTERVAL === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
 
       await Promise.all(promises);
       props.setProgress(1.0);
