@@ -32,7 +32,7 @@ const Legend = styled.div`
     flex-wrap: wrap;
     gap: ${({ theme }) => theme.spacing.md};
     justify-content: center;
-    font-size: ${({ theme }) => theme.typography.sizes.small};
+    font-size: ${({ theme }) => theme.typography.sizes.caption};
     color: ${({ theme }) => theme.colors.text.secondary};
 `
 
@@ -152,7 +152,7 @@ export const CoordMap = memo(function CoordMap(props: CoordMapProps) {
             <Legend>
                 <LegendItem>
                     <LegendColor $color="#ef4444" />
-                    <span>Target Coordinates</span>
+                    <span>Target (Held for &gt;1 frame)</span>
                 </LegendItem>
                 <LegendItem>
                     <LegendColor $color="#3b82f6" />
