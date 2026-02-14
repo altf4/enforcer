@@ -117,11 +117,29 @@ export const CoordMap = memo(function CoordMap(props: CoordMapProps) {
             context.stroke()
         }
 
-        for (let coord of props.coords) {
-            // Draw coord dot with better visibility
-            let dotSize: number = 2
+        const travel: Coord[] = []
+        const target: Coord[] = []
+        for (let i = 0; i < props.coords.length; i++) {
+            const coord = props.coords[i]
+            const prev = props.coords[i - 1]
+            const next = props.coords[i + 1]
+            if ((prev && coord.x === prev.x && coord.y === prev.y) || (next && coord.x === next.x && coord.y === next.y)) {
+                target.push(coord)
+            } else {
+                travel.push(coord)
+            }
+        }
+
+        let dotSize: number = 2
+        context.fillStyle = "#3b82f6"
+        for (let coord of travel) {
             context.beginPath()
-            context.fillStyle = "#ef4444"
+            context.arc((coord.x * radius) + radius, (coord.y * -radius) + radius, dotSize, 0, 2 * Math.PI)
+            context.fill()
+        }
+        context.fillStyle = "#ef4444"
+        for (let coord of target) {
+            context.beginPath()
             context.arc((coord.x * radius) + radius, (coord.y * -radius) + radius, dotSize, 0, 2 * Math.PI)
             context.fill()
         }
@@ -131,22 +149,28 @@ export const CoordMap = memo(function CoordMap(props: CoordMapProps) {
         <Container>
             <Canvas ref={canvasRef} width={radius*2} height={radius*2} />
             <CoordCount>{props.coords.length} coordinate{props.coords.length !== 1 ? 's' : ''} plotted</CoordCount>
-            {props.showZones && (
-                <Legend>
-                    <LegendItem>
-                        <LegendColor $color="#3b82f6" />
-                        <span>Uptilt Rounding Box</span>
-                    </LegendItem>
-                    <LegendItem>
-                        <LegendColor $color="#f59e0b" />
-                        <span>Uptilt Area</span>
-                    </LegendItem>
-                    <LegendItem>
-                        <LegendColor $color="#ef4444" />
-                        <span>Detected Coordinates</span>
-                    </LegendItem>
-                </Legend>
-            )}
+            <Legend>
+                <LegendItem>
+                    <LegendColor $color="#ef4444" />
+                    <span>Target Coordinates</span>
+                </LegendItem>
+                <LegendItem>
+                    <LegendColor $color="#3b82f6" />
+                    <span>Travel Coordinates</span>
+                </LegendItem>
+                {props.showZones && (
+                    <>
+                        <LegendItem>
+                            <LegendColor $color="rgba(59, 130, 246, 0.5)" />
+                            <span>Uptilt Rounding Box</span>
+                        </LegendItem>
+                        <LegendItem>
+                            <LegendColor $color="#f59e0b" />
+                            <span>Uptilt Area</span>
+                        </LegendItem>
+                    </>
+                )}
+            </Legend>
         </Container>
     )
 })
