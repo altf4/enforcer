@@ -16,7 +16,7 @@ const Container = styled.div`
 
 const CheckRowHeader = styled.div<{ $hasViolations: boolean }>`
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) repeat(4, 1fr) 24px;
+  grid-template-columns: 24px minmax(200px, 2fr) repeat(4, 1fr);
   gap: ${({ theme }) => theme.spacing.md};
   padding: ${({ theme }) => theme.spacing.md};
   background: ${({ theme }) => theme.colors.background.secondary};
@@ -33,7 +33,7 @@ const CheckRowHeader = styled.div<{ $hasViolations: boolean }>`
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 24px;
+    grid-template-columns: 24px 1fr;
     gap: ${({ theme }) => theme.spacing.sm};
   }
 `;
@@ -179,6 +179,11 @@ export const CheckList: React.FC<CheckListProps> = ({ checks }) => {
               $hasViolations={hasViolations}
               onClick={() => hasViolations && toggleCheck(index)}
             >
+              {hasViolations ? (
+                <ChevronWrapper $isExpanded={isExpanded}>
+                  <ChevronDownIcon />
+                </ChevronWrapper>
+              ) : <div />}
               <CheckName>{check.name}</CheckName>
               <PlayerResults>
                 {check.passed.map((result, playerIndex) => {
@@ -193,11 +198,6 @@ export const CheckList: React.FC<CheckListProps> = ({ checks }) => {
                   );
                 })}
               </PlayerResults>
-              {hasViolations ? (
-                <ChevronWrapper $isExpanded={isExpanded}>
-                  <ChevronDownIcon />
-                </ChevronWrapper>
-              ) : <div />}
             </CheckRowHeader>
             {hasViolations && (
               <ViolationsPanel $isExpanded={isExpanded}>
