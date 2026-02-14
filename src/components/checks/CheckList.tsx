@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import styled from 'styled-components';
-import { CheckCircleIcon, XCircleIcon, MinusCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, MinusCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { CheckDataRow } from '../../ResultsTable';
+import { ViolationCard } from './ViolationCard';
 
 interface CheckListProps {
   checks: CheckDataRow[];
@@ -12,18 +14,26 @@ const Container = styled.div`
   gap: ${({ theme }) => theme.spacing.sm};
 `;
 
-const CheckRow = styled.div`
+const CheckRowHeader = styled.div<{ $hasViolations: boolean }>`
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) repeat(4, 1fr);
+  grid-template-columns: minmax(200px, 2fr) repeat(4, 1fr) 24px;
   gap: ${({ theme }) => theme.spacing.md};
   padding: ${({ theme }) => theme.spacing.md};
   background: ${({ theme }) => theme.colors.background.secondary};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   align-items: center;
+  cursor: ${({ $hasViolations }) => ($hasViolations ? 'pointer' : 'default')};
+  user-select: none;
+  transition: background ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    background: ${({ theme, $hasViolations }) =>
+      $hasViolations ? theme.colors.background.elevated : theme.colors.background.secondary};
+  }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 24px;
     gap: ${({ theme }) => theme.spacing.sm};
   }
 `;
@@ -46,6 +56,7 @@ const PlayerResults = styled.div`
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: ${({ theme }) => theme.spacing.sm};
+    grid-column: 1;
   }
 `;
 
@@ -81,6 +92,44 @@ const PlayerLabel = styled.span`
   }
 `;
 
+const ChevronWrapper = styled.div<{ $isExpanded: boolean }>`
+  width: 20px;
+  height: 20px;
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  transition: transform ${({ theme }) => theme.transitions.fast};
+  transform: rotate(${({ $isExpanded }) => ($isExpanded ? '180deg' : '0deg')});
+  flex-shrink: 0;
+`;
+
+const ViolationsPanel = styled.div<{ $isExpanded: boolean }>`
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '2000px' : '0')};
+  overflow: hidden;
+  transition: max-height ${({ theme }) => theme.transitions.slow};
+`;
+
+const ViolationsPanelContent = styled.div`
+  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+
+  @media (max-width: 768px) {
+    padding: ${({ theme }) => theme.spacing.md};
+  }
+`;
+
+const PlayerViolationGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
+const PlayerViolationLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.sizes.small};
+  font-weight: ${({ theme }) => theme.typography.weights.semibold};
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
 const getResultStatus = (result: string): 'passed' | 'failed' | 'empty' => {
   if (!result || result === '') return 'empty';
   if (result.includes('✅') || result.toLowerCase().includes('passed')) return 'passed';
@@ -95,6 +144,20 @@ const getResultIcon = (status: 'passed' | 'failed' | 'empty') => {
 };
 
 export const CheckList: React.FC<CheckListProps> = ({ checks }) => {
+  const [expandedChecks, setExpandedChecks] = useState<Set<number>>(new Set());
+
+  const toggleCheck = (index: number) => {
+    setExpandedChecks((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
   return (
     <Container>
       {checks.map((check, index) => {
@@ -103,23 +166,54 @@ export const CheckList: React.FC<CheckListProps> = ({ checks }) => {
           return null;
         }
 
+        // Collect violations across all players for this check
+        const violationsByPlayer = check.violations
+          .map((violations, playerIndex) => ({ playerIndex, violations }))
+          .filter(({ violations }) => violations.length > 0);
+        const hasViolations = violationsByPlayer.length > 0;
+        const isExpanded = expandedChecks.has(index);
+
         return (
-          <CheckRow key={index}>
-            <CheckName>{check.name}</CheckName>
-            <PlayerResults>
-              {check.passed.map((result, playerIndex) => {
-                const status = getResultStatus(result);
-                return (
-                  <PlayerResult key={playerIndex}>
-                    <IconWrapper $status={status}>
-                      {getResultIcon(status)}
-                    </IconWrapper>
-                    <PlayerLabel>P{playerIndex + 1}</PlayerLabel>
-                  </PlayerResult>
-                );
-              })}
-            </PlayerResults>
-          </CheckRow>
+          <div key={index}>
+            <CheckRowHeader
+              $hasViolations={hasViolations}
+              onClick={() => hasViolations && toggleCheck(index)}
+            >
+              <CheckName>{check.name}</CheckName>
+              <PlayerResults>
+                {check.passed.map((result, playerIndex) => {
+                  const status = getResultStatus(result);
+                  return (
+                    <PlayerResult key={playerIndex}>
+                      <IconWrapper $status={status}>
+                        {getResultIcon(status)}
+                      </IconWrapper>
+                      <PlayerLabel>P{playerIndex + 1}</PlayerLabel>
+                    </PlayerResult>
+                  );
+                })}
+              </PlayerResults>
+              {hasViolations ? (
+                <ChevronWrapper $isExpanded={isExpanded}>
+                  <ChevronDownIcon />
+                </ChevronWrapper>
+              ) : <div />}
+            </CheckRowHeader>
+            {hasViolations && (
+              <ViolationsPanel $isExpanded={isExpanded}>
+                <ViolationsPanelContent>
+                  {violationsByPlayer.map(({ playerIndex, violations }) => (
+                    <PlayerViolationGroup key={playerIndex}>
+                      <PlayerViolationLabel>Player {playerIndex + 1}</PlayerViolationLabel>
+                      {violations.map((violation, vIndex) => (
+                        <ViolationCard key={vIndex} violation={violation} />
+                      ))}
+                    </PlayerViolationGroup>
+                  ))}
+                </ViolationsPanelContent>
+              </ViolationsPanel>
+            )}
+          </div>
         );
       })}
     </Container>

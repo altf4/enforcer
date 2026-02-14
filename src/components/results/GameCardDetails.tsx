@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { CheckDataRow } from '../../ResultsTable';
 import { CheckList } from '../checks/CheckList';
-import { PlayerCheckSection } from '../checks/PlayerCheckSection';
 import { CoordMap } from '../../CoordMap';
 
 interface GameCardDetailsProps {
@@ -89,27 +88,18 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
     );
   }
 
-  // Collect all violations and visualizations per player
-  const playerViolations: any[][] = [[], [], [], []];
+  // Collect visualizations per player
   const playerVisualizations: any[][] = [[], [], [], []];
 
   details.forEach((check) => {
     check.violations.forEach((violations, playerIndex) => {
       violations.forEach((violation) => {
-        // Separate visualizations from actual violations
         if (violation.checkName === "Control Stick Visualization") {
           playerVisualizations[playerIndex].push(violation);
-        } else {
-          playerViolations[playerIndex].push(violation);
         }
       });
     });
   });
-
-  // Find players with violations
-  const playersWithViolations = playerViolations
-    .map((violations, index) => ({ index, violations, count: violations.length }))
-    .filter(player => player.count > 0);
 
   // Find players with visualizations
   const playersWithVisualizations = playerVisualizations
@@ -122,37 +112,6 @@ export const GameCardDetails: React.FC<GameCardDetailsProps> = ({
       <Section>
         <SectionTitle>Check Results Summary</SectionTitle>
         <CheckList checks={details} />
-      </Section>
-
-      <Divider />
-
-      {/* Violations Section */}
-      <Section>
-        <SectionTitle>
-          Detailed Violations
-          {playersWithViolations.length > 0 && (
-            <span style={{ fontWeight: 400, fontSize: '14px', marginLeft: '12px', color: '#9ca3af' }}>
-              ({playersWithViolations.length} player{playersWithViolations.length > 1 ? 's' : ''} with violations)
-            </span>
-          )}
-        </SectionTitle>
-
-        {playersWithViolations.length > 0 ? (
-          playersWithViolations.map(({ index, violations }) => (
-            <PlayerCheckSection
-              key={index}
-              playerIndex={index}
-              violations={violations}
-              characterId={characterIds[index]}
-              costume={costumes[index]}
-              controllerType={controllerTypes[index]}
-            />
-          ))
-        ) : (
-          <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#10b981', padding: '24px' }}>
-            No violations detected.
-          </p>
-        )}
       </Section>
 
       {/* Visualizations Section */}
