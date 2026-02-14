@@ -11,7 +11,7 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
   let settings
   try {
     settings = getGameSettings(slpBytes)
-  } catch {
+  } catch (err: any) {
     return {
       filename,
       stage: -1,
@@ -20,7 +20,8 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
       controllerTypes: ["?", "?", "?", "?"],
       characterIds: [-1, -1, -1, -1],
       costumes: [-1, -1, -1, -1],
-      details: []
+      details: [],
+      errorReason: `Failed to parse SLP file: ${err.message || 'Unknown error'}`
     }
   }
 
@@ -43,34 +44,93 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
     }
   }
 
-  if (isSlpMinVersion(slpBytes)) {
-    passed = "💀 SLP Too Old (Slippi >=3.15.0)"
-    for (let i = 0; i < 4; i++) {
-      playerPassed[i] = "⦻"
+  // Check SLP version
+  let isTooOld = false
+  try {
+    isTooOld = isSlpMinVersion(slpBytes)
+  } catch (err: any) {
+    return {
+      filename,
+      stage: settings.stageId ?? -1,
+      overallResult: "💀 Could Not Parse",
+      results: ["⦻", "⦻", "⦻", "⦻"],
+      controllerTypes: ["?", "?", "?", "?"],
+      characterIds,
+      costumes,
+      details: [],
+      errorReason: `Version check failed: ${err.message || 'Unknown error'}`
     }
-  } else if (isHandwarmer(slpBytes)) {
-    passed = "🔥 Handwarmer"
-    for (let i = 0; i < 4; i++) {
-      playerPassed[i] = "⦻"
+  }
+
+  if (isTooOld) {
+    return {
+      filename,
+      stage: settings.stageId ?? -1,
+      overallResult: "💀 SLP Too Old (Slippi >=3.15.0)",
+      results: ["⦻", "⦻", "⦻", "⦻"],
+      controllerTypes: controllerType,
+      characterIds,
+      costumes,
+      details: []
     }
-  } else {
-    let failed = false
+  }
 
-    const checkResultsMap: CheckDataRow[] = CHECK_MAPPING.map(({ name }) => ({
-      name,
-      passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"],
-      violations: [[], [], [], []]
-    }))
+  // Check for handwarmer
+  let handwarmer = false
+  try {
+    handwarmer = isHandwarmer(slpBytes)
+  } catch (err: any) {
+    return {
+      filename,
+      stage: settings.stageId ?? -1,
+      overallResult: "💀 Could Not Parse",
+      results: ["⦻", "⦻", "⦻", "⦻"],
+      controllerTypes: ["?", "?", "?", "?"],
+      characterIds,
+      costumes,
+      details: [],
+      errorReason: `Handwarmer check failed: ${err.message || 'Unknown error'}`
+    }
+  }
 
-    for (let i = 0; i < 4; i++) {
-      if (!ports.includes(i)) {
-        for (const cr of checkResultsMap) { cr.passed[i] = "" }
-        playerPassed[i] = ""
-        continue
-      }
+  if (handwarmer) {
+    return {
+      filename,
+      stage: settings.stageId ?? -1,
+      overallResult: "🔥 Handwarmer",
+      results: ["⦻", "⦻", "⦻", "⦻"],
+      controllerTypes: controllerType,
+      characterIds,
+      costumes,
+      details: []
+    }
+  }
 
+  // Run per-player analysis
+  let failed = false
+  const perPlayerErrors: string[] = []
+
+  const checkResultsMap: CheckDataRow[] = CHECK_MAPPING.map(({ name }) => ({
+    name,
+    passed: ["✅ Passed", "✅ Passed", "✅ Passed", "✅ Passed"],
+    violations: [[], [], [], []]
+  }))
+
+  for (let i = 0; i < 4; i++) {
+    if (!ports.includes(i)) {
+      for (const cr of checkResultsMap) { cr.passed[i] = "" }
+      playerPassed[i] = ""
+      continue
+    }
+
+    try {
       controllerType[i] = isBoxController(slpBytes, i) ? "digital" : "analog"
+    } catch (err: any) {
+      controllerType[i] = "?"
+      perPlayerErrors.push(`P${i + 1} controller detection failed: ${err.message || 'Unknown error'}`)
+    }
 
+    try {
       const allResults: AllCheckResults = analyzeReplay(slpBytes, i)
 
       for (let idx = 0; idx < CHECK_MAPPING.length; idx++) {
@@ -89,11 +149,15 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
           cr.violations[i] = violationArrayToDataRows(result.violations, name)
         }
       }
+    } catch (err: any) {
+      playerPassed[i] = "⦻"
+      for (const cr of checkResultsMap) { cr.passed[i] = "⦻" }
+      perPlayerErrors.push(`P${i + 1} analysis failed: ${err.message || 'Unknown error'}`)
     }
-
-    passed = failed ? "❌ Failed" : "✅ Passed"
-    checkResults = checkResultsMap
   }
+
+  passed = failed ? "❌ Failed" : "✅ Passed"
+  checkResults = checkResultsMap
 
   let ourStage: number = settings.stageId ?? -1
 
@@ -105,7 +169,8 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
     controllerTypes: controllerType,
     characterIds: characterIds,
     costumes: costumes,
-    details: checkResults
+    details: checkResults,
+    errorReason: perPlayerErrors.length > 0 ? perPlayerErrors.join('; ') : undefined
   }
 }
 
@@ -138,10 +203,21 @@ ctx.onmessage = async (e: MessageEvent) => {
       const result = runChecks(msg.filename, msg.buffer)
       ctx.postMessage({ type: 'result', taskId: msg.taskId, result })
     } catch (err: any) {
+      const errorMessage = err.message || 'Unknown worker error'
       ctx.postMessage({
-        type: 'error',
+        type: 'result',
         taskId: msg.taskId,
-        error: err.message || 'Unknown worker error'
+        result: {
+          filename: msg.filename,
+          stage: -1,
+          overallResult: "💀 Could Not Parse",
+          results: ["⦻", "⦻", "⦻", "⦻"],
+          controllerTypes: ["?", "?", "?", "?"],
+          characterIds: [-1, -1, -1, -1],
+          costumes: [-1, -1, -1, -1],
+          details: [],
+          errorReason: `Unexpected error: ${errorMessage}`
+        }
       })
     }
   }

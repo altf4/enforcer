@@ -65,6 +65,7 @@ export type GameDataRow = {
   controllerTypes: string[]
   costumes: number[]
   details: CheckDataRow[]
+  errorReason?: string
 }
 
 export type CheckDataRow = {

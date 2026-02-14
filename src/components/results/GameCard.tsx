@@ -4,6 +4,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { fadeInUp } from '../../styles/animations';
 import { GameCardHeader } from './GameCardHeader';
 import { GameCardDetails } from './GameCardDetails';
+import { StatusType } from '../shared/StatusBadge';
 
 interface GameCardProps {
   filename: string;
@@ -14,6 +15,7 @@ interface GameCardProps {
   characterIds: number[];
   costumes: number[];
   details?: any[];
+  errorReason?: string;
   $delay?: number;
 }
 
@@ -21,13 +23,17 @@ const getStatusColor = (result: string, theme: any) => {
   if (result.includes('Passed') || result.includes('✅')) return theme.colors.status.success;
   if (result.includes('Failed') || result.includes('❌')) return theme.colors.status.error;
   if (result.includes('Handwarmer') || result.includes('🔥')) return theme.colors.status.warning;
-  if (result.includes('Too Old') || result.includes('💀')) return theme.colors.text.tertiary;
+  if (result.includes('Could Not Parse')) return theme.colors.status.warning;
+  if (result.includes('Too Old')) return theme.colors.text.tertiary;
   return theme.colors.border;
 };
 
-const getStatusType = (result: string): 'passed' | 'failed' | 'warning' => {
+const getStatusType = (result: string): StatusType => {
   if (result.includes('Passed') || result.includes('✅')) return 'passed';
   if (result.includes('Failed') || result.includes('❌')) return 'failed';
+  if (result.includes('Handwarmer') || result.includes('🔥')) return 'handwarmer';
+  if (result.includes('Could Not Parse')) return 'warning';
+  if (result.includes('Too Old')) return 'too-old';
   return 'warning';
 };
 
@@ -138,6 +144,7 @@ export const GameCard = memo<GameCardProps>(({
   characterIds,
   costumes,
   details,
+  errorReason,
   $delay = 0,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -207,6 +214,7 @@ export const GameCard = memo<GameCardProps>(({
             characterIds={characterIds}
             costumes={costumes}
             controllerTypes={controllerTypes}
+            errorReason={errorReason}
           />
         </DetailsContent>
       </DetailsContainer>

@@ -103,9 +103,10 @@ function App() {
       const pool = poolRef.current
       if (!pool) {
         resolve({
-          filename: file.name, stage: -1, overallResult: "Worker Error",
+          filename: file.name, stage: -1, overallResult: "💀 Could Not Parse",
           results: ["⦻", "⦻", "⦻", "⦻"], controllerTypes: ["?", "?", "?", "?"],
-          characterIds: [-1, -1, -1, -1], costumes: [-1, -1, -1, -1], details: []
+          characterIds: [-1, -1, -1, -1], costumes: [-1, -1, -1, -1], details: [],
+          errorReason: "Worker pool not initialized"
         })
         return
       }
@@ -116,9 +117,10 @@ function App() {
         (taskResult: TaskResult) => {
           if (taskResult.error || !taskResult.result) {
             resolve({
-              filename: file.name, stage: -1, overallResult: "Worker Error",
+              filename: file.name, stage: -1, overallResult: "💀 Could Not Parse",
               results: ["⦻", "⦻", "⦻", "⦻"], controllerTypes: ["?", "?", "?", "?"],
-              characterIds: [-1, -1, -1, -1], costumes: [-1, -1, -1, -1], details: []
+              characterIds: [-1, -1, -1, -1], costumes: [-1, -1, -1, -1], details: [],
+              errorReason: taskResult.error || "Unknown worker error"
             })
           } else {
             resolve(taskResult.result)

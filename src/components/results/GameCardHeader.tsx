@@ -79,10 +79,15 @@ const PlayerLabel = styled.span`
 `;
 
 const getStatusLabel = (result: string): string => {
-  if (result.includes('✅') || result.includes('Passed')) return 'Passed';
-  if (result.includes('❌') || result.includes('Failed')) return 'Failed';
-  if (result.includes('🔥') || result.includes('Handwarmer')) return 'Handwarmer';
-  if (result.includes('💀') || result.includes('Too Old')) return 'SLP Too Old';
+  if (result.includes('Passed')) return 'Passed';
+  if (result.includes('Failed')) return 'Failed';
+  if (result.includes('Handwarmer')) return 'Handwarmer';
+  if (result.includes('Could Not Parse')) return 'Could Not Parse';
+  if (result.includes('Too Old')) return 'SLP Too Old';
+  if (result.includes('✅')) return 'Passed';
+  if (result.includes('❌')) return 'Failed';
+  if (result.includes('🔥')) return 'Handwarmer';
+  if (result.includes('💀')) return 'Error';
   return result;
 };
 

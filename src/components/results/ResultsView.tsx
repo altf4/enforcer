@@ -15,6 +15,7 @@ interface GameDataRow {
   characterIds: number[];
   costumes: number[];
   details?: any[];
+  errorReason?: string;
 }
 
 interface ResultsViewProps {
@@ -186,6 +187,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
             characterIds={game.characterIds}
             costumes={game.costumes}
             details={game.filteredDetails}
+            errorReason={game.errorReason}
             $delay={index * 50}
           />
         ))}
