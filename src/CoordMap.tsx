@@ -23,6 +23,8 @@ const Canvas = styled.canvas`
     border: 2px solid ${({ theme }) => theme.colors.border};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     background: ${({ theme }) => theme.colors.background.primary};
+    max-width: 100%;
+    height: auto;
 `
 
 const Legend = styled.div`
