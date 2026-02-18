@@ -79,4 +79,5 @@ export type ViolationsDataRow = {
   evidence: any[]
   reason: string
   metric: number
+  allCoords?: any[]
 }

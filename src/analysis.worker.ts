@@ -145,6 +145,12 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
         continue
       }
 
+      // Get main stick coords early so they're available for both checks and visualization
+      let mainStickCoords: any[] | null = null
+      try {
+        mainStickCoords = game.getMainStickCoords(i)
+      } catch { /* skip on error */ }
+
       try {
         const analysis: PlayerAnalysis = game.analyzePlayer(i)
         controllerType[i] = analysis.controller_type === "Box" ? "digital" : "analog"
@@ -162,7 +168,13 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
             cr.passed[i] = "❌"
             playerPassed[i] = "❌"
             failed = true
-            cr.violations[i] = violationArrayToDataRows(getCheckViolations(analysis, key), name)
+            const rows = violationArrayToDataRows(getCheckViolations(analysis, key), name)
+            if (key === 'input_fuzzing' && mainStickCoords) {
+              for (const row of rows) {
+                row.allCoords = mainStickCoords
+              }
+            }
+            cr.violations[i] = rows
           }
         }
       } catch (err: any) {
@@ -172,8 +184,7 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
       }
 
       // Control stick visualization
-      try {
-        const mainStickCoords = game.getMainStickCoords(i)
+      if (mainStickCoords) {
         vizDataRow.passed[i] = "✅"
         vizDataRow.violations[i] = [{
           checkName: "Control Stick Visualization",
@@ -181,7 +192,7 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
           reason: "Control stick coordinate visualization",
           evidence: mainStickCoords,
         }]
-      } catch { /* skip visualization on error */ }
+      }
     }
 
     checkResultsMap.push(vizDataRow)

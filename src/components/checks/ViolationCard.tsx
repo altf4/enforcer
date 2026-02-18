@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { ViolationsDataRow } from '../../ResultsTable';
 import { CoordElement } from '../../CoordElement';
 import { CoordMap } from '../../CoordMap';
+import { FuzzCoordMap } from '../../FuzzCoordMap';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface ViolationCardProps {
@@ -151,9 +152,11 @@ function RenderViolation(violation: ViolationsDataRow): JSX.Element {
     return (
       <ViolationContent>
         <Reason>{violation.reason}</Reason>
-        <MetricLabel>LLR Score: {violation.metric.toFixed(4)}</MetricLabel>
         {violation.evidence.length > 0 && (
-          <CoordMap coords={violation.evidence} showZones={false} />
+          <FuzzCoordMap
+            evidence={violation.evidence}
+            allCoords={violation.allCoords ?? []}
+          />
         )}
       </ViolationContent>
     );

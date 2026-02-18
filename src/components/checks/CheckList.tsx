@@ -101,11 +101,7 @@ const ChevronWrapper = styled.div<{ $isExpanded: boolean }>`
   flex-shrink: 0;
 `;
 
-const ViolationsPanel = styled.div<{ $isExpanded: boolean }>`
-  max-height: ${({ $isExpanded }) => ($isExpanded ? '2000px' : '0')};
-  overflow: hidden;
-  transition: max-height ${({ theme }) => theme.transitions.slow};
-`;
+const ViolationsPanel = styled.div``;
 
 const ViolationsPanelContent = styled.div`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
@@ -199,8 +195,8 @@ export const CheckList: React.FC<CheckListProps> = ({ checks }) => {
                 })}
               </PlayerResults>
             </CheckRowHeader>
-            {hasViolations && (
-              <ViolationsPanel $isExpanded={isExpanded}>
+            {hasViolations && isExpanded && (
+              <ViolationsPanel>
                 <ViolationsPanelContent>
                   {violationsByPlayer.map(({ playerIndex, violations }) => (
                     <PlayerViolationGroup key={playerIndex}>
