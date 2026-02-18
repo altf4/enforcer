@@ -5,6 +5,7 @@ export const CHECK_NAMES = [
   'Fast Crouch Uptilt',
   'Illegal SDI',
   'GoomWave Clamping',
+  'Input Fuzzing',
 ] as const;
 
 export type CheckName = typeof CHECK_NAMES[number];

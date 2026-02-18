@@ -147,6 +147,18 @@ function RenderViolation(violation: ViolationsDataRow): JSX.Element {
     );
   }
 
+  if (violation.checkName === "Input Fuzzing") {
+    return (
+      <ViolationContent>
+        <Reason>{violation.reason}</Reason>
+        <MetricLabel>LLR Score: {violation.metric.toFixed(4)}</MetricLabel>
+        {violation.evidence.length > 0 && (
+          <CoordMap coords={violation.evidence} showZones={false} />
+        )}
+      </ViolationContent>
+    );
+  }
+
   if (violation.checkName === "GoomWave Clamping") {
     return (
       <ViolationContent>
