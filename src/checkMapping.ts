@@ -26,7 +26,10 @@ export function isViolation(analysis: PlayerAnalysis, key: CheckKey): boolean {
 export function getCheckViolations(analysis: PlayerAnalysis, key: CheckKey): Violation[] {
   const field = analysis[key]
   if (field === undefined) return []
-  return field.violations ?? []
+  if (key === 'input_fuzzing') {
+    return (field as FuzzAnalysis).violations ?? []
+  }
+  return (field as CheckResult).details ?? []
 }
 
 export function violationArrayToDataRows(violations: Violation[], checkName: string): ViolationsDataRow[] {

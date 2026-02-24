@@ -8585,7 +8585,7 @@ slash@^4.0.0:
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
 "slp-enforcer@file:../libenforcer":
-  version "2.1.0"
+  version "2.2.0"
 
 sockjs@^0.3.24:
   version "0.3.24"
