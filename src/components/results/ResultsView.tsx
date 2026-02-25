@@ -103,7 +103,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
 
   const [enabledChecks, setEnabledChecks] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    CHECK_NAMES.forEach(name => { initial[name] = true; });
+    CHECK_NAMES.forEach(name => { initial[name] = name !== 'Illegal SDI'; });
     return initial;
   });
 
