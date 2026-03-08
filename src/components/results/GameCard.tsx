@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useState, memo } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { FireIcon } from '@heroicons/react/24/solid';
 import { fadeInUp } from '../../styles/animations';
 import { GameCardHeader } from './GameCardHeader';
 import { GameCardDetails } from './GameCardDetails';
@@ -16,6 +17,7 @@ interface GameCardProps {
   costumes: number[];
   details?: any[];
   errorReason?: string;
+  isHandwarmer?: boolean;
   $delay?: number;
 }
 
@@ -135,6 +137,24 @@ const DetailsContent = styled.div`
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
+const HandwarmerBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  background: ${({ theme }) => `${theme.colors.status.warning}15`};
+  border-bottom: 1px solid ${({ theme }) => `${theme.colors.status.warning}40`};
+  color: ${({ theme }) => theme.colors.status.warning};
+  font-size: ${({ theme }) => theme.typography.sizes.small};
+  font-weight: ${({ theme }) => theme.typography.weights.semibold};
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+`;
+
 export const GameCard = memo<GameCardProps>(({
   filename,
   stage,
@@ -145,6 +165,7 @@ export const GameCard = memo<GameCardProps>(({
   costumes,
   details,
   errorReason,
+  isHandwarmer,
   $delay = 0,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -167,6 +188,12 @@ export const GameCard = memo<GameCardProps>(({
       role="article"
       aria-label={`Game result for ${filename}`}
     >
+      {isHandwarmer && (
+        <HandwarmerBanner>
+          <FireIcon />
+          WARNING: Results may be unreliable (handwarmer game)
+        </HandwarmerBanner>
+      )}
       <CardHeaderWrapper
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
@@ -185,6 +212,7 @@ export const GameCard = memo<GameCardProps>(({
           characterIds={characterIds}
           costumes={costumes}
           statusType={getStatusType(overallResult)}
+          isHandwarmer={isHandwarmer}
         />
         <ExpandButton
           onClick={(e) => { e.stopPropagation(); handleToggle(); }}

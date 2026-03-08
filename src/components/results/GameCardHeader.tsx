@@ -11,6 +11,7 @@ interface GameCardHeaderProps {
   characterIds: number[];
   costumes: number[];
   statusType: StatusType;
+  isHandwarmer?: boolean;
 }
 
 const HeaderContainer = styled.div`
@@ -100,6 +101,7 @@ export const GameCardHeader: React.FC<GameCardHeaderProps> = ({
   characterIds,
   costumes,
   statusType,
+  isHandwarmer,
 }) => {
   const violationCount = results.filter(r => r.includes('❌')).length;
 
@@ -112,8 +114,11 @@ export const GameCardHeader: React.FC<GameCardHeaderProps> = ({
           </StageIconWrapper>
           <Filename>{filename}</Filename>
         </LeftSection>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <StatusBadge status={statusType} label={getStatusLabel(overallResult)} size="medium" />
+          {isHandwarmer && (
+            <StatusBadge status="handwarmer" label="Handwarmer" size="small" />
+          )}
         </div>
       </TopRow>
 

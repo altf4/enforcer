@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useState, useMemo } from 'react';
+import { FireIcon } from '@heroicons/react/24/solid';
 import { StatusDashboard } from './StatusDashboard';
 import { GameCard } from './GameCard';
 import { CheckTogglePanel } from './CheckTogglePanel';
@@ -16,6 +17,7 @@ interface GameDataRow {
   costumes: number[];
   details?: any[];
   errorReason?: string;
+  isHandwarmer?: boolean;
 }
 
 interface ResultsViewProps {
@@ -31,6 +33,75 @@ interface VisibilityState {
 const ResultsContainer = styled.div`
   width: 100%;
   padding: ${({ theme }) => theme.spacing.lg} 0;
+`;
+
+const HandwarmerToggleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing.md} 0;
+`;
+
+const HandwarmerLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: background ${({ theme }) => theme.transitions.fast};
+  font-size: ${({ theme }) => theme.typography.sizes.small};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  user-select: none;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.background.elevated};
+  }
+`;
+
+const HiddenCheckbox = styled.input`
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+`;
+
+const CustomCheckbox = styled.div<{ $checked: boolean }>`
+  width: 18px;
+  height: 18px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 2px solid ${({ theme, $checked }) =>
+    $checked ? '#f59e0b' : theme.colors.border};
+  background: ${({ $checked }) =>
+    $checked ? '#f59e0b' : 'transparent'};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    display: ${({ $checked }) => ($checked ? 'block' : 'none')};
+    width: 5px;
+    height: 9px;
+    border: solid ${({ theme }) => theme.colors.text.primary};
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+`;
+
+const FireIconSmall = styled.div`
+  width: 16px;
+  height: 16px;
+  color: #f59e0b;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const GamesContainer = styled.div`
@@ -101,6 +172,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
     special: false,
   });
 
+  const [showHandwarmers, setShowHandwarmers] = useState(false);
+
   const [enabledChecks, setEnabledChecks] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     CHECK_NAMES.forEach(name => { initial[name] = name !== 'Illegal SDI'; });
@@ -133,16 +206,22 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
   );
 
   // Calculate stats from derived results
+  // Handwarmers only count as pass/fail when the handwarmer toggle is on;
+  // otherwise they are excluded from pass/fail and counted separately.
   const stats = useMemo(() => {
-    let passed = 0, failed = 0, special = 0;
+    let passed = 0, failed = 0, special = 0, handwarmers = 0;
     derivedResults.forEach(game => {
+      if (game.isHandwarmer) {
+        handwarmers++;
+        if (!showHandwarmers) return;
+      }
       const category = getResultCategory(game.effectiveOverallResult);
       if (category === 'passed') passed++;
       else if (category === 'failed') failed++;
       else special++;
     });
-    return { passed, failed, special };
-  }, [derivedResults]);
+    return { passed, failed, special, handwarmers };
+  }, [derivedResults, showHandwarmers]);
 
   const toggleVisibility = (category: keyof VisibilityState) => {
     setVisibility(prev => ({
@@ -153,6 +232,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
 
   // Filter results based on visibility state
   const filteredResults = derivedResults.filter(game => {
+    if (game.isHandwarmer && !showHandwarmers) return false;
     const category = getResultCategory(game.effectiveOverallResult);
     return visibility[category];
   });
@@ -188,10 +268,27 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ results }) => {
             costumes={game.costumes}
             details={game.filteredDetails}
             errorReason={game.errorReason}
+            isHandwarmer={game.isHandwarmer}
             $delay={index * 50}
           />
         ))}
       </GamesContainer>
+      {stats.handwarmers > 0 && (
+        <HandwarmerToggleRow>
+          <HandwarmerLabel>
+            <HiddenCheckbox
+              type="checkbox"
+              checked={showHandwarmers}
+              onChange={() => setShowHandwarmers(prev => !prev)}
+            />
+            <CustomCheckbox $checked={showHandwarmers} />
+            <FireIconSmall>
+              <FireIcon />
+            </FireIconSmall>
+            Show {stats.handwarmers} handwarmer{stats.handwarmers !== 1 ? 's' : ''}
+          </HandwarmerLabel>
+        </HandwarmerToggleRow>
+      )}
     </ResultsContainer>
   );
 };

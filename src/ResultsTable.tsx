@@ -66,6 +66,7 @@ export type GameDataRow = {
   costumes: number[]
   details: CheckDataRow[]
   errorReason?: string
+  isHandwarmer?: boolean
 }
 
 export type CheckDataRow = {

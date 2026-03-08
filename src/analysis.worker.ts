@@ -109,19 +109,6 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
       }
     }
 
-    if (handwarmer) {
-      return {
-        filename,
-        stage: settings.stageId ?? -1,
-        overallResult: "🔥 Handwarmer",
-        results: ["⦻", "⦻", "⦻", "⦻"],
-        controllerTypes: controllerType,
-        characterIds,
-        costumes,
-        details: []
-      }
-    }
-
     // Run per-player analysis
     let failed = false
     const perPlayerErrors: string[] = []
@@ -206,7 +193,8 @@ function runChecks(filename: string, buffer: ArrayBuffer): GameDataRow {
       characterIds,
       costumes,
       details: checkResultsMap,
-      errorReason: perPlayerErrors.length > 0 ? perPlayerErrors.join('; ') : undefined
+      errorReason: perPlayerErrors.length > 0 ? perPlayerErrors.join('; ') : undefined,
+      isHandwarmer: handwarmer || undefined
     }
   } finally {
     game.free()
